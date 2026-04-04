@@ -12,6 +12,11 @@ spring:
       hibernate:
         format_sql: false
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 server:
   port: ${SERVER_PORT:8080}
   shutdown: graceful
@@ -19,3 +24,9 @@ server:
 jwt:
   access-token-expiration-seconds: ${JWT_ACCESS_TOKEN_EXPIRATION_SECONDS:3600}
   refresh-token-expiration-seconds: ${JWT_REFRESH_TOKEN_EXPIRATION_SECONDS:1209600}
+
+google:
+  cloud:
+    vision:
+      credentials:
+        location: classpath:comne-491811-ab231f3ee954.json
