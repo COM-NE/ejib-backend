@@ -8,7 +8,13 @@ public enum ErrorCode {
     // 공통
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "적절하지 않은 입력값입니다."),
     HANDLE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "C002", "접근 권한이 없습니다."),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "서버 내부 에러입니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C003", "서버 내부 에러입니다."),
+
+    //OCR
+    OCR_FILE_EMPTY(HttpStatus.BAD_REQUEST, "O001", "업로드된 파일이 비어있습니다."),
+    OCR_VISION_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "O002", "Google Vision API 호출 중 에러가 발생했습니다."),
+    OCR_NO_TEXT_FOUND(HttpStatus.BAD_REQUEST, "O003", "이미지에서 텍스트를 추출할 수 없습니다."),
+    INVALID_CONTRACT_INFO(HttpStatus.BAD_REQUEST, "O004", "계약서 정보가 사용자 정보와 일치하지 않습니다.");
 
     private final HttpStatus status;
     private final String code;
