@@ -29,4 +29,4 @@ google:
   cloud:
     vision:
       credentials:
-        location: classpath:comne-491811-ab231f3ee954.json
+        location: ${VISION_KEY}
