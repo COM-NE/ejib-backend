@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class OcrVerifyResponse {
-    private boolean isVerified;
+    private boolean verified;
     private String message;
 }
