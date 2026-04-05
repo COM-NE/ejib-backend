@@ -32,6 +32,11 @@ public class OcrService {
     private static final int TARGET_WIDTH = 1500;
     private static final float OUTPUT_QUALITY = 0.9f;
 
+    // 파일 유효성 검증 상수
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    private static final java.util.List<String> ALLOWED_TYPES =
+            java.util.List.of("image/jpeg", "image/png", "image/webp");
+
     public void verifyContract(MultipartFile file, String userName, String address) {
         validateFile(file);
 
@@ -136,8 +141,22 @@ public class OcrService {
     }
 
     private void validateFile(MultipartFile file) {
+        // 존재 여부 체크
         if (file == null || file.isEmpty()) {
             throw new BusinessException(ErrorCode.OCR_FILE_EMPTY);
+        }
+
+        // 파일 크기 체크
+        if (file.getSize() > MAX_FILE_SIZE) {
+            log.warn("파일 크기 초과: {} bytes", file.getSize());
+            throw new BusinessException(ErrorCode.FILE_SIZE_EXCEEDED); // 400번대 에러 코드 필요
+        }
+
+        // 파일 형식 체크
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
+            log.warn("지원하지 않는 파일 형식: {}", contentType);
+            throw new BusinessException(ErrorCode.INVALID_FILE_TYPE); // 400번대 에러 코드 필요
         }
     }
 

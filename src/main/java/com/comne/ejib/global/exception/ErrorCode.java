@@ -14,7 +14,9 @@ public enum ErrorCode {
     OCR_FILE_EMPTY(HttpStatus.BAD_REQUEST, "O001", "업로드된 파일이 비어있습니다."),
     OCR_VISION_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "O002", "Google Vision API 호출 중 에러가 발생했습니다."),
     OCR_NO_TEXT_FOUND(HttpStatus.BAD_REQUEST, "O003", "이미지에서 텍스트를 추출할 수 없습니다."),
-    INVALID_CONTRACT_INFO(HttpStatus.BAD_REQUEST, "O004", "계약서 정보가 사용자 정보와 일치하지 않습니다.");
+    INVALID_CONTRACT_INFO(HttpStatus.BAD_REQUEST, "O004", "계약서 정보가 사용자 정보와 일치하지 않습니다."),
+    FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "O005", "업로드 가능한 파일 크기를 초과했습니다."),
+    INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "O006", "지원하지 않는 파일 형식입니다.");
 
     private final HttpStatus status;
     private final String code;
