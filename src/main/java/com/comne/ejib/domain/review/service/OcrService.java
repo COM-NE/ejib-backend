@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Optional;
 
 /**
  * 실거주 인증을 위한 OCR 서비스
@@ -79,14 +80,23 @@ public class OcrService {
                 .build();
 
         BatchAnnotateImagesResponse response = visionClient.batchAnnotateImages(Collections.singletonList(request));
-        AnnotateImageResponse res = response.getResponsesList().get(0);
+        // 응답 리스트가 비어있는지 확인
+        if (response.getResponsesList().isEmpty()) {
+            log.error("Vision API 응답 리스트가 비어있습니다.");
+            throw new BusinessException(ErrorCode.OCR_VISION_API_ERROR);
+        }
 
+        AnnotateImageResponse res = response.getResponsesList().get(0);
+        // 응답 내 에러 확인
         if (res.hasError()) {
             log.error("Vision API Runtime Error: {}", res.getError().getMessage());
             throw new BusinessException(ErrorCode.OCR_VISION_API_ERROR);
         }
 
-        return res.getFullTextAnnotation().getText();
+        // FullTextAnnotation 및 Text null 체크
+        return Optional.ofNullable(res.getFullTextAnnotation())
+                .map(TextAnnotation::getText)
+                .orElse(""); // 텍스트가 없으면 빈 문자열 반환 혹은 예외 처리
     }
 
     /**
@@ -103,7 +113,7 @@ public class OcrService {
         String targetAddress = address.replaceAll("\\s", "");
 
         if (!sanitizedText.contains(targetName) || !sanitizedText.contains(targetAddress)) {
-            log.warn("검증 불일치 - 원본 텍스트 일부: {}", fullText.substring(0, Math.min(fullText.length(), 50)));
+            log.warn("텍스트 검증 불일치");
             throw new BusinessException(ErrorCode.INVALID_CONTRACT_INFO);
         }
     }
