@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -156,15 +157,25 @@ public class OcrService {
         // 파일 크기 체크
         if (file.getSize() > MAX_FILE_SIZE) {
             log.warn("파일 크기 초과: {} bytes", file.getSize());
-            throw new BusinessException(ErrorCode.FILE_SIZE_EXCEEDED); // 400번대 에러 코드 필요
+            throw new BusinessException(ErrorCode.FILE_SIZE_EXCEEDED);
         }
 
         // 파일 형식 체크
         String contentType = file.getContentType();
         if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
             log.warn("지원하지 않는 파일 형식: {}", contentType);
-            throw new BusinessException(ErrorCode.INVALID_FILE_TYPE); // 400번대 에러 코드 필요
+            throw new BusinessException(ErrorCode.INVALID_FILE_TYPE);
         }
+
+        try (InputStream is = file.getInputStream()) {
+                        if (ImageIO.read(is) == null) {
+                                log.warn("이미지 디코딩 실패: contentType={}", contentType);
+                                throw new BusinessException(ErrorCode.INVALID_FILE_TYPE);
+                            }
+                    } catch (IOException e) {
+                        log.warn("파일 시그니처 검증 실패", e);
+                        throw new BusinessException(ErrorCode.INVALID_FILE_TYPE);
+                    }
     }
 
 }
