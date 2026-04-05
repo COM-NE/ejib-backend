@@ -8,11 +8,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -56,12 +58,14 @@ public class OcrService {
     private byte[] preprocessImage(MultipartFile file) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        Thumbnails.of(file.getInputStream())
-                .size(TARGET_WIDTH, TARGET_WIDTH) // 비율 유지하며 가로 최대 1500px로 조정
-                .imageType(BufferedImage.TYPE_BYTE_GRAY) // OCR 인식에 불필요한 색상 정보 제거
-                .outputFormat("jpg")
-                .outputQuality(OUTPUT_QUALITY) // 압축률 90% 유지
-                .toOutputStream(outputStream);
+        try (InputStream inputStream = file.getInputStream()) {
+            Thumbnails.of(inputStream)
+                    .size(TARGET_WIDTH, TARGET_WIDTH) // 비율 유지하며 가로 최대 1500px로 조정
+                    .imageType(BufferedImage.TYPE_BYTE_GRAY) // OCR 인식에 불필요한 색상 정보 제거
+                    .outputFormat("jpg")
+                    .outputQuality(OUTPUT_QUALITY) // 압축률 90% 유지
+                    .toOutputStream(outputStream);
+        }
 
         return outputStream.toByteArray();
     }
@@ -96,26 +100,39 @@ public class OcrService {
         // FullTextAnnotation 및 Text null 체크
         return Optional.ofNullable(res.getFullTextAnnotation())
                 .map(TextAnnotation::getText)
-                .orElse(""); // 텍스트가 없으면 빈 문자열 반환 혹은 예외 처리
+                .filter(StringUtils::hasText)
+                .orElseThrow(() -> new BusinessException(ErrorCode.OCR_NO_TEXT_FOUND)); // 텍스트가 없으면 빈 문자열 반환 혹은 예외 처리
     }
 
     /**
      * 추출된 텍스트와 사용자 입력 정보 매칭 검증
      */
     private void validateOcrContent(String fullText, String userName, String address) {
+        // 필수 입력값 검증
+        if (!StringUtils.hasText(userName) || !StringUtils.hasText(address)) {
+            log.warn("검증 실패: 사용자 입력 정보(이름/주소)가 누락되었습니다.");
+            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+
         if (fullText == null || fullText.isBlank()) {
             throw new BusinessException(ErrorCode.OCR_NO_TEXT_FOUND);
         }
 
-        // 공백 제거 후 비교
+        // 공백 제거 후 비교 (전처리)
         String sanitizedText = fullText.replaceAll("\\s", "");
         String targetName = userName.replaceAll("\\s", "");
         String targetAddress = address.replaceAll("\\s", "");
 
-        if (!sanitizedText.contains(targetName) || !sanitizedText.contains(targetAddress)) {
-            log.warn("텍스트 검증 불일치");
+        // 3. 포함 여부 검증
+        boolean nameMatch = sanitizedText.contains(targetName);
+        boolean addressMatch = sanitizedText.contains(targetAddress);
+        if (!nameMatch || !addressMatch) {
+            // 개인정보(PII)를 로그에 남기지 않도록 구체적인 데이터는 제외하고 상태만 기록
+            log.warn("계약서 검증 불일치 - 이름 일치여부: {}, 주소 일치여부: {}", nameMatch, addressMatch);
             throw new BusinessException(ErrorCode.INVALID_CONTRACT_INFO);
         }
+
+        log.info("OCR 인증 성공");
     }
 
     private void validateFile(MultipartFile file) {
