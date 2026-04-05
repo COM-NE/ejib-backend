@@ -88,7 +88,14 @@ public class OcrService {
                 .setImage(img)
                 .build();
 
-        BatchAnnotateImagesResponse response = visionClient.batchAnnotateImages(Collections.singletonList(request));
+        BatchAnnotateImagesResponse response;
+        try {
+            response = visionClient.batchAnnotateImages(Collections.singletonList(request));
+        } catch (RuntimeException e) {
+            log.error("Vision API 호출 실패: {}", e.getMessage(), e);
+            throw new BusinessException(ErrorCode.OCR_VISION_API_ERROR);
+        }
+
         // 응답 리스트가 비어있는지 확인
         if (response.getResponsesList().isEmpty()) {
             log.error("Vision API 응답 리스트가 비어있습니다.");
