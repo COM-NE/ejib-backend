@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 @Configuration
 public class VisionConfig {
@@ -17,10 +18,12 @@ public class VisionConfig {
 
     @Bean
     public ImageAnnotatorClient imageAnnotatorClient() throws IOException {
-        GoogleCredentials credentials = GoogleCredentials.fromStream(credentialsLocation.getInputStream());
-        ImageAnnotatorSettings settings = ImageAnnotatorSettings.newBuilder()
-                .setCredentialsProvider(() -> credentials)
-                .build();
-        return ImageAnnotatorClient.create(settings);
+        try (InputStream is = credentialsLocation.getInputStream()) {
+            GoogleCredentials credentials = GoogleCredentials.fromStream(credentialsLocation.getInputStream());
+            ImageAnnotatorSettings settings = ImageAnnotatorSettings.newBuilder()
+                    .setCredentialsProvider(() -> credentials)
+                    .build();
+            return ImageAnnotatorClient.create(settings);
+        }
     }
 }
