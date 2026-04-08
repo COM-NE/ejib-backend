@@ -30,3 +30,8 @@ google:
     vision:
       credentials:
         location: ${VISION_KEY}
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_NAME}
+  api-key: ${CLOUDINARY_KEY}
+  api-secret: ${CLOUDINARY_SECRET}
