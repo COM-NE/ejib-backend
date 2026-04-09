@@ -20,8 +20,9 @@ import java.util.Collections;
 import java.util.Optional;
 
 /**
- * 실거주 인증을 위한 OCR 서비스
- * Google Vision API 연동 및 이미지 전처리를 통한 성능 최적화
+ * 실거주 인증을 위한 OCR 서비스 클래스입니다.
+ * Google Vision API를 연동하여 사용자가 업로드한 임대차 계약서 등의 이미지에서
+ * 이름과 주소 정보를 추출하고 검증하는 기능을 제공합니다.
  */
 @Slf4j
 @Service
@@ -38,6 +39,14 @@ public class OcrService {
     private static final java.util.List<String> ALLOWED_TYPES =
             java.util.List.of("image/jpeg", "image/png", "image/webp");
 
+    /**
+     * 업로드된 계약서 이미지를 검증하여 실거주 여부를 확인합니다.
+     *
+     * @param file     검증할 이미지 파일 (MultipartFile)
+     * @param userName 검증 대상 사용자 이름
+     * @param address  검증 대상 매물 주소
+     * @throws BusinessException 파일 처리 실패 또는 정보 불일치 시 발생
+     */
     public void verifyContract(MultipartFile file, String userName, String address) {
         validateFile(file);
 
@@ -58,8 +67,12 @@ public class OcrService {
     }
 
     /**
-     * Thumbnailator를 이용한 이미지 최적화
-     * 리사이징, 무채색화, JPEG 압축을 수행
+     * Thumbnailator 라이브러리를 사용하여 이미지를 OCR 최적화된 형태로 변환합니다.
+     * 텍스트 인식에 불필요한 색상 정보를 제거하고 용량을 압축합니다.
+     *
+     * @param file 원본 이미지 파일
+     * @return 전처리가 완료된 이미지 바이트 배열
+     * @throws IOException 이미지 읽기/쓰기 실패 시 발생
      */
     private byte[] preprocessImage(MultipartFile file) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -77,7 +90,11 @@ public class OcrService {
     }
 
     /**
-     * Vision API에 텍스트 추출 요청
+     * Google Cloud Vision API에 텍스트 감지(TEXT_DETECTION)를 요청합니다.
+     *
+     * @param imageBytes 전처리된 이미지 바이트 배열
+     * @return 추출된 전체 텍스트 문자열
+     * @throws BusinessException Vision API 호출 실패 또는 텍스트 미검출 시 발생
      */
     private String requestOcrAnalysis(byte[] imageBytes) {
         ByteString imgBytes = ByteString.copyFrom(imageBytes);
@@ -118,7 +135,12 @@ public class OcrService {
     }
 
     /**
-     * 추출된 텍스트와 사용자 입력 정보 매칭 검증
+     * OCR로 추출된 텍스트와 사용자가 입력한 정보를 대조합니다.
+     * 띄어쓰기 오인식을 방지하기 위해 모든 공백을 제거한 후 비교합니다.
+     *
+     * @param fullText OCR로 추출된 전체 텍스트
+     * @param userName 비교할 사용자 이름
+     * @param address  비교할 매물 주소
      */
     private void validateOcrContent(String fullText, String userName, String address) {
         // 필수 입력값 검증
@@ -148,6 +170,12 @@ public class OcrService {
         log.info("OCR 인증 성공");
     }
 
+    /**
+     * 업로드된 파일의 물리적 유효성을 검증합니다.
+     * 파일 존재 여부, 크기, 확장자 및 실제 이미지 디코딩 가능 여부를 확인합니다.
+     *
+     * @param file 검증할 멀티파트 파일
+     */
     private void validateFile(MultipartFile file) {
         // 존재 여부 체크
         if (file == null || file.isEmpty()) {

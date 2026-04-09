@@ -36,6 +36,7 @@ public class ReviewService {
 
     /**
      * 새로운 리뷰를 등록하고 관련 이미지를 서버에 업로드합니다.
+     *
      * @param request 리뷰 정보
      * @param images  리뷰와 함께 업로드할 이미지 파일 리스트
      * @return 생성된 리뷰의 식별자(ID)
@@ -97,6 +98,7 @@ public class ReviewService {
 
     /**
      * Cloudinary 서버로 이미지를 전송하고 업로드된 URL을 반환받습니다.
+     *
      * @param file 업로드할 멀티파트 파일
      * @return 업로드된 이미지의 공개 URL
      */
