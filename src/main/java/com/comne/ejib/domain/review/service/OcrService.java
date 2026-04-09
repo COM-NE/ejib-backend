@@ -157,7 +157,7 @@ public class OcrService {
         // 파일 크기 체크
         if (file.getSize() > MAX_FILE_SIZE) {
             log.warn("파일 크기 초과: {} bytes", file.getSize());
-            throw new BusinessException(ErrorCode.FILE_SIZE_EXCEEDED);
+            throw new BusinessException(ErrorCode.OCR_SIZE_EXCEEDED);
         }
 
         // 파일 형식 체크
