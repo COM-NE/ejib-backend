@@ -15,3 +15,14 @@ spring:
 
 jwt:
   secret: test-jwt-secret
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_NAME:test-cloud}
+  api-key: ${CLOUDINARY_KEY:test-key}
+  api-secret: ${CLOUDINARY_SECRET:test-secret}
+
+google:
+  cloud:
+    vision:
+      credentials:
+        location: ${VISION_KEY:test-vision-key}

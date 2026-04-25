@@ -98,6 +98,9 @@ public class ReviewService {
                     .imageUrl(imageUrl)
                     .build();
             reviewImageRepository.save(reviewImage);
+
+            // 연관 관계 편의를 위해 리스트에도 추가
+            review.getImages().add(reviewImage);
         }
     }
 

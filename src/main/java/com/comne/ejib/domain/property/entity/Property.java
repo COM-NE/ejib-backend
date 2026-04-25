@@ -2,14 +2,14 @@ package com.comne.ejib.domain.property.entity;
 
 import com.comne.ejib.global.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "properties")
 public class Property extends BaseTimeEntity {

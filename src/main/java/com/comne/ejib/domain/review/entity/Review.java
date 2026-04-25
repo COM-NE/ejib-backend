@@ -45,6 +45,7 @@ public class Review extends BaseTimeEntity {
     private Integer deposit;
     private Integer monthlyRent;
 
+    @Builder.Default
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
     private List<ReviewImage> images = new ArrayList<>();
 }
