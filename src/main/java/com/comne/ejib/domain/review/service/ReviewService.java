@@ -18,16 +18,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.StopWatch;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewRepository reviewRepository;
@@ -35,73 +38,86 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final PropertyRepository propertyRepository;
     private final Cloudinary cloudinary;
+    private final TransactionTemplate transactionTemplate;
 
     /**
-     * 새로운 리뷰를 등록하고 관련 이미지를 서버에 업로드합니다.
-     *
-     * @param request 리뷰 정보
-     * @param images  리뷰와 함께 업로드할 이미지 파일 리스트
-     * @return 생성된 리뷰 정보 (DTO)
-     * @throws IOException 이미지 파일 읽기 실패 시 발생
+     * 새로운 리뷰를 등록합니다.
+     * [개선사항]
+     * 1. 외부 API(Cloudinary) 호출을 트랜잭션 외부로 분리하여 DB 커넥션 점유 시간 단축
+     * 2. CompletableFuture를 활용하여 이미지를 병렬로 업로드 (N개 -> 1개 시간으로 단축)
+     * 3. saveAll을 통한 Batch Insert 최적화
      */
-    @Transactional
     public ReviewResponse createReview(ReviewRequest request, List<MultipartFile> images) throws IOException {
-        // 1. 데이터 정합성 확인
-        User user = userRepository.findById(request.userId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-        Property property = propertyRepository.findById(request.propertyId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매물입니다."));
+        StopWatch stopWatch = new StopWatch("Review Creation Performance");
 
-        // 2. Review 엔티티 생성 및 저장
-        Review review = Review.builder()
-                .user(user)
-                .property(property)
-                .reviewType(request.reviewType())
-                .residenceDuration(request.residenceDuration())
-                .totalScore(request.totalScore())
-                .houseScore(request.houseScore())
-                .facilityScore(request.facilityScore())
-                .infraScore(request.infraScore())
-                .safetyScore(request.safetyScore())
-                .envScore(request.envScore())
-                .content(request.content())
-                .deposit(request.deposit())
-                .monthlyRent(request.monthlyRent())
-                .build();
-        
-        // save() 후 반환된 엔티티를 사용 (ID가 생성됨)
-        Review savedReview = reviewRepository.save(review);
+        // 1. 이미지 병렬 업로드 (DB 트랜잭션 외부에서 수행하여 커넥션 고갈 방지)
+        stopWatch.start("Parallel Image Upload");
+        List<String> imageUrls = uploadImagesParallel(images);
+        stopWatch.stop();
 
-        // 3. 첨부된 이미지가 있을 경우 업로드 및 DB 기록
-        if (images != null && !images.isEmpty()) {
-            processImages(images, savedReview);
-        }
+        // 2. DB 저장 (필요한 구간만 트랜잭션 적용)
+        stopWatch.start("DB Transactional Save");
+        Review savedReview = transactionTemplate.execute(status -> {
+            User user = userRepository.findById(request.userId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+            Property property = propertyRepository.findById(request.propertyId())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매물입니다."));
 
-        // 4. DTO로 변환하여 반환
+            Review review = Review.builder()
+                    .user(user)
+                    .property(property)
+                    .reviewType(request.reviewType())
+                    .residenceDuration(request.residenceDuration())
+                    .totalScore(request.totalScore())
+                    .houseScore(request.houseScore())
+                    .facilityScore(request.facilityScore())
+                    .infraScore(request.infraScore())
+                    .safetyScore(request.safetyScore())
+                    .envScore(request.envScore())
+                    .content(request.content())
+                    .deposit(request.deposit())
+                    .monthlyRent(request.monthlyRent())
+                    .build();
+
+            Review result = reviewRepository.save(review);
+
+            if (!imageUrls.isEmpty()) {
+                List<ReviewImage> reviewImages = imageUrls.stream()
+                        .map(url -> ReviewImage.builder()
+                                .review(result)
+                                .imageUrl(url)
+                                .build())
+                        .collect(Collectors.toList());
+                reviewImageRepository.saveAll(reviewImages);
+                // 응답 DTO 변환을 위해 영속성 컨텍스트 내 객체 상태 동기화
+                reviewImages.forEach(img -> result.getImages().add(img));
+            }
+            return result;
+        });
+        stopWatch.stop();
+
+        log.info("\n{}", stopWatch.prettyPrint());
         return ReviewResponse.from(savedReview);
     }
 
     /**
-     * 이미지 리스트를 순회하며 검증, 업로드 및 엔티티 저장을 수행합니다.
+     * 이미지를 병렬로 Cloudinary에 업로드합니다.
      */
-    private void processImages(List<MultipartFile> images, Review review) {
-        for (MultipartFile file : images) {
-            // 파일 유효성 검사 (파일 미첨부, 용량 초과 등)
-            validateImage(file);
-
-            // Cloudinary에 이미지 업로드
-            String imageUrl = uploadToCloudinary(file);
-
-            // 업로드된 URL을 바탕으로 ReviewImage 엔티티 생성 및 저장
-            ReviewImage reviewImage = ReviewImage.builder()
-                    .review(review)
-                    .imageUrl(imageUrl)
-                    .build();
-            reviewImageRepository.save(reviewImage);
-
-            // 연관 관계 편의를 위해 리스트에도 추가
-            review.getImages().add(reviewImage);
+    private List<String> uploadImagesParallel(List<MultipartFile> images) {
+        if (images == null || images.isEmpty()) {
+            return new ArrayList<>();
         }
+
+        List<CompletableFuture<String>> futures = images.stream()
+                .map(file -> CompletableFuture.supplyAsync(() -> {
+                    validateImage(file);
+                    return uploadToCloudinary(file);
+                }))
+                .collect(Collectors.toList());
+
+        return futures.stream()
+                .map(CompletableFuture::join) // 모든 업로드가 완료될 때까지 대기
+                .collect(Collectors.toList());
     }
 
     /**
@@ -131,7 +147,6 @@ public class ReviewService {
 
         // 5MB 용량 제한 (1024 * 1024 * 5)
         if (file.getSize() > 5 * 1024 * 1024) {
-            log.warn("파일 용량 초과: {} (Size: {} bytes)", file.getOriginalFilename(), file.getSize());
             throw new BusinessException(ErrorCode.IMAGE_SIZE_EXCEEDED);
         }
     }
