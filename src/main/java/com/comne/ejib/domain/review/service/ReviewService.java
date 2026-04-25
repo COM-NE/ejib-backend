@@ -5,6 +5,7 @@ import com.cloudinary.utils.ObjectUtils;
 import com.comne.ejib.domain.property.entity.Property;
 import com.comne.ejib.domain.property.repository.PropertyRepository;
 import com.comne.ejib.domain.review.dto.ReviewRequest;
+import com.comne.ejib.domain.review.dto.ReviewResponse;
 import com.comne.ejib.domain.review.entity.Review;
 import com.comne.ejib.domain.review.entity.ReviewImage;
 import com.comne.ejib.domain.review.repository.ReviewImageRepository;
@@ -13,15 +14,16 @@ import com.comne.ejib.domain.user.entity.User;
 import com.comne.ejib.domain.user.repository.UserRepository;
 import com.comne.ejib.global.exception.BusinessException;
 import com.comne.ejib.global.exception.ErrorCode;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,12 +41,12 @@ public class ReviewService {
      *
      * @param request 리뷰 정보
      * @param images  리뷰와 함께 업로드할 이미지 파일 리스트
-     * @return 생성된 리뷰의 식별자(ID)
+     * @return 생성된 리뷰 정보 (DTO)
      * @throws IOException 이미지 파일 읽기 실패 시 발생
      */
     @Transactional
-    public Long createReview(ReviewRequest request, List<MultipartFile> images) throws IOException {
-        // 1. 데이터 정합성 확인: 존재하지 않는 유저나 매물일 경우 예외 발생
+    public ReviewResponse createReview(ReviewRequest request, List<MultipartFile> images) throws IOException {
+        // 1. 데이터 정합성 확인
         User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
         Property property = propertyRepository.findById(request.propertyId())
@@ -66,14 +68,17 @@ public class ReviewService {
                 .deposit(request.deposit())
                 .monthlyRent(request.monthlyRent())
                 .build();
-        reviewRepository.save(review);
+        
+        // save() 후 반환된 엔티티를 사용 (ID가 생성됨)
+        Review savedReview = reviewRepository.save(review);
 
-        // 3. 첨부된 이미지가 있을 경우 업로드 및 DB 기록 프로세스 진행
+        // 3. 첨부된 이미지가 있을 경우 업로드 및 DB 기록
         if (images != null && !images.isEmpty()) {
-            processImages(images, review);
+            processImages(images, savedReview);
         }
 
-        return review.getId();
+        // 4. DTO로 변환하여 반환
+        return ReviewResponse.from(savedReview);
     }
 
     /**
@@ -126,5 +131,51 @@ public class ReviewService {
             log.warn("파일 용량 초과: {} (Size: {} bytes)", file.getOriginalFilename(), file.getSize());
             throw new BusinessException(ErrorCode.IMAGE_SIZE_EXCEEDED);
         }
+    }
+
+    /**
+     * 특정 매물(Property)에 등록된 모든 리뷰를 조회합니다.
+     *
+     * @param propertyId 조회할 매물의 식별자(ID)
+     * @return 해당 매물에 등록된 리뷰 정보 리스트 (DTO)
+     * @throws IllegalArgumentException 존재하지 않는 매물 ID일 경우 발생
+     */
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getReviewsByPropertyId(Long propertyId) {
+        if (!propertyRepository.existsById(propertyId)) {
+            throw new IllegalArgumentException("존재하지 않는 매물입니다.");
+        }
+        return reviewRepository.findByPropertyId(propertyId).stream()
+                .map(ReviewResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 특정 유저(User)가 작성한 모든 리뷰를 조회합니다.
+     *
+     * @param userId 조회할 유저의 식별자(ID)
+     * @return 해당 유저가 작성한 리뷰 정보 리스트 (DTO)
+     * @throws IllegalArgumentException 존재하지 않는 유저 ID일 경우 발생
+     */
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getReviewsByUserId(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new IllegalArgumentException("존재하지 않는 유저입니다.");
+        }
+        return reviewRepository.findByUserId(userId).stream()
+                .map(ReviewResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 가장 최근에 등록된 리뷰 3개를 조회합니다.
+     *
+     * @return 최신 리뷰 3개 정보 리스트 (DTO)
+     */
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getLatestReviews() {
+        return reviewRepository.findTop3ByOrderByCreatedAtDesc().stream()
+                .map(ReviewResponse::from)
+                .collect(Collectors.toList());
     }
 }
