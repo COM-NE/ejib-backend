@@ -16,6 +16,8 @@ import com.comne.ejib.global.exception.BusinessException;
 import com.comne.ejib.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -179,7 +181,14 @@ public class ReviewService {
         if (!propertyRepository.existsById(propertyId)) {
             throw new IllegalArgumentException("존재하지 않는 매물입니다.");
         }
-        return reviewRepository.findByPropertyId(propertyId).stream()
+
+        // 1. 해당 매물의 리뷰 ID 리스트만 조회
+        List<Long> ids = reviewRepository.findIdsByPropertyId(propertyId);
+
+        if (ids.isEmpty()) return new ArrayList<>();
+
+        // 2. ID들로 images 포함 조회
+        return reviewRepository.findByIdIn(ids, Sort.by(Sort.Direction.DESC, "createdAt")).stream()
                 .map(ReviewResponse::from)
                 .collect(Collectors.toList());
     }
@@ -196,7 +205,16 @@ public class ReviewService {
         if (!userRepository.existsById(userId)) {
             throw new IllegalArgumentException("존재하지 않는 유저입니다.");
         }
-        return reviewRepository.findByUserId(userId).stream()
+
+        // 1. 유저가 작성한 리뷰 ID 리스트만 먼저 조회 (중복 없음)
+        List<Long> ids = reviewRepository.findIdsByUserId(userId);
+
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 2. 확보한 ID들로 images를 포함한 전체 엔티티 조회 (N+1 해결 및 정렬 보장)
+        return reviewRepository.findByIdIn(ids, Sort.by(Sort.Direction.DESC, "createdAt")).stream()
                 .map(ReviewResponse::from)
                 .collect(Collectors.toList());
     }
@@ -208,7 +226,15 @@ public class ReviewService {
      */
     @Transactional(readOnly = true)
     public List<ReviewResponse> getLatestReviews() {
-        return reviewRepository.findTop3ByOrderByCreatedAtDesc().stream()
+        // 1. 최신 리뷰 ID 3개만 먼저 조회 (LIMIT 쿼리가 DB에서 안전하게 실행)
+        List<Long> ids = reviewRepository.findLatestIds(PageRequest.of(0, 3));
+
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 2. 확보한 ID들로 images를 포함한 전체 데이터 조회
+        return reviewRepository.findByIdIn(ids, Sort.by(Sort.Direction.DESC, "createdAt")).stream()
                 .map(ReviewResponse::from)
                 .collect(Collectors.toList());
     }
