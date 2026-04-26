@@ -119,11 +119,10 @@ public class ReviewService {
             return new ArrayList<>();
         }
 
+        images.forEach(this::validateImage);
+
         List<CompletableFuture<String>> futures = images.stream()
-                .map(file -> CompletableFuture.supplyAsync(() -> {
-                    validateImage(file);
-                    return uploadToCloudinary(file);
-                }))
+                .map(file -> CompletableFuture.supplyAsync(()-> uploadToCloudinary(file)))
                 .collect(Collectors.toList());
 
         try {
@@ -146,8 +145,9 @@ public class ReviewService {
      */
     private String uploadToCloudinary(MultipartFile file) {
         try {
-            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-            return (String) uploadResult.get("url");
+            Map<String, Object> uploadResult = cloudinary.uploader()
+                    .upload(file.getBytes(), ObjectUtils.emptyMap());
+            return (String) uploadResult.get("secure_url");
         } catch (Exception e) {
             log.error("Cloudinary upload error for file: {}", file.getOriginalFilename(), e);
             throw new BusinessException(ErrorCode.IMAGE_UPLOAD_ERROR);
