@@ -1,17 +1,46 @@
 package com.comne.ejib.domain.review.dto;
 
+import jakarta.validation.constraints.*;
+
 public record ReviewRequest(
+        @NotNull(message = "사용자 ID는 필수입니다.")
         Long userId,
+
+        @NotNull(message = "매물 ID는 필수입니다.")
         Long propertyId,
-        String reviewType, // 후기 유형(임장/실거주)
-        Integer residenceDuration, // 거주 기간
-        Integer totalScore, // 총 점수
-        Integer houseScore, // 집 상태
-        Integer facilityScore, // 시설물
-        Integer infraScore, // 인프라
-        Integer safetyScore, // 치안
-        Integer envScore, // 환경
-        String content, // 리뷰 내용
-        Integer deposit, // 후기 보증금
-        Integer monthlyRent // 후기 월세
+
+        @NotBlank(message = "후기 유형을 선택해주세요. (임장/실거주)")
+        String reviewType,
+
+        @Min(value = 0, message = "거주 기간은 0개월 이상이어야 합니다.")
+        Integer residenceDuration,
+
+        @NotNull(message = "종합 만족도를 선택해주세요.")
+        @Min(1) @Max(5)
+        Integer totalScore,
+
+        @Min(1) @Max(5)
+        Integer houseScore,
+
+        @Min(1) @Max(5)
+        Integer facilityScore,
+
+        @Min(1) @Max(5)
+        Integer infraScore,
+
+        @Min(1) @Max(5)
+        Integer safetyScore,
+
+        @Min(1) @Max(5)
+        Integer envScore,
+
+        @NotBlank(message = "리뷰 내용을 입력해주세요.")
+        @Size(min = 10, max = 1000, message = "리뷰 내용은 10자 이상 1000자 이하로 작성해주세요.")
+        String content,
+
+        @Min(value = 0, message = "보증금은 0원 이상이어야 합니다.")
+        Integer deposit,
+
+        @Min(value = 0, message = "월세는 0원 이상이어야 합니다.")
+        Integer monthlyRent
 ) {}

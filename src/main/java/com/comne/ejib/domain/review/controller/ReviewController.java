@@ -3,6 +3,7 @@ package com.comne.ejib.domain.review.controller;
 import com.comne.ejib.domain.review.dto.ReviewRequest;
 import com.comne.ejib.domain.review.dto.ReviewResponse;
 import com.comne.ejib.domain.review.service.ReviewService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class ReviewController {
 
     @PostMapping
     public ResponseEntity<ReviewResponse> createReview(
-            @RequestPart("request") ReviewRequest request,
+            @RequestPart("request") @Valid ReviewRequest request,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
         ReviewResponse response = reviewService.createReview(request, images);
