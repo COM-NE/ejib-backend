@@ -1,10 +1,13 @@
 package com.comne.ejib.domain.property.entity;
 
+import com.comne.ejib.domain.review.entity.Review;
 import com.comne.ejib.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -38,4 +41,8 @@ public class Property extends BaseTimeEntity {
 
     @Column(precision = 13, scale = 10)
     private BigDecimal longitude;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+    private List<Review> reviews = new ArrayList<>();
 }

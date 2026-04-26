@@ -25,7 +25,7 @@ public class GeminiClient {
     @Value("${google.gemini.api-key}")
     private String apiKey;
 
-    @Value("${google.gemini.url:https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent}")
+    @Value("${google.gemini.url:https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-lite:generateContent}")
     private String apiUrl;
 
     private final RestTemplate geminiRestTemplate;
@@ -43,27 +43,29 @@ public class GeminiClient {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // API 요청 바디 구성
+        // API 요청 바디 구성 (v1beta 기준 responseMimeType 사용)
         Map<String, Object> requestBody = Map.of(
                 "contents", List.of(
                         Map.of("parts", List.of(
                                 Map.of("text", prompt)
                         ))
                 ),
-                "generationConfig", Map.of(
-                        "response_mime_type", "application/json"
+                "generation_config", Map.of(  // generationConfig -> generation_config (권장)
+                        "response_mime_type", "application/json" // responseMimeType -> response_mime_type (필수)
                 )
         );
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
         try {
-            log.info("Gemini API 호출 시작...");
+            log.info("Gemini API 호출 시작 (Model: 2.5-flash-lite)...");
+            // RestTemplate이 에러 응답 본문을 보여주지 않을 때를 대비해 구체적인 로그를 남깁니다.
             Map<String, Object> response = geminiRestTemplate.postForObject(url, entity, Map.class);
             return extractTextFromResponse(response);
         } catch (Exception e) {
             log.error("Gemini API 호출 중 오류 발생: {}", e.getMessage());
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR); // 프로젝트 정의에 맞춰 수정 가능
+            // 팁: 여기서 ErrorCode.AI_API_ERROR 같은 전용 에러를 쓰면 더 좋습니다.
+            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
