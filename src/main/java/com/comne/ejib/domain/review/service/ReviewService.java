@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -115,9 +116,16 @@ public class ReviewService {
                 }))
                 .collect(Collectors.toList());
 
-        return futures.stream()
-                .map(CompletableFuture::join) // 모든 업로드가 완료될 때까지 대기
-                .collect(Collectors.toList());
+        try {
+            return futures.stream()
+                    .map(CompletableFuture::join) // 모든 업로드가 완료될 때까지 대기
+                    .collect(Collectors.toList());
+        } catch (CompletionException e) {
+            Throwable cause = e.getCause();
+            if(cause instanceof BusinessException) throw (BusinessException) cause;
+            if(cause instanceof RuntimeException) throw (RuntimeException) cause;
+            throw e;
+        }
     }
 
     /**
