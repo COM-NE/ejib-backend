@@ -51,6 +51,14 @@ public class ReviewService {
     public ReviewResponse createReview(ReviewRequest request, List<MultipartFile> images) throws IOException {
         StopWatch stopWatch = new StopWatch("Review Creation Performance");
 
+        // 0. 외부 업로드 이전에 참조 무결성 사전 검증 (이미지 누수 방지)
+        if (!userRepository.existsById(request.userId())) {
+            throw new IllegalArgumentException("존재하지 않는 유저입니다.");
+        }
+        if (!propertyRepository.existsById(request.propertyId())) {
+            throw new IllegalArgumentException("존재하지 않는 매물입니다.");
+        }
+
         // 1. 이미지 병렬 업로드 (DB 트랜잭션 외부에서 수행하여 커넥션 고갈 방지)
         stopWatch.start("Parallel Image Upload");
         List<String> imageUrls = uploadImagesParallel(images);
