@@ -64,24 +64,24 @@ public class PropertyAiService {
         // 3. 프롬프트 생성
         String prompt = buildPrompt(userRequest, context);
 
-        // 4. AI 호출 및 결과 파싱
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                String aiResponse = geminiClient.generateContent(prompt);
-                // AI로부터 임시 응답(ID와 요약문)을 받음
-                AiInternalResponse internalResponse = objectMapper.readValue(aiResponse, AiInternalResponse.class);
-                
-                // 5. 원본 데이터와 결합하여 최종 응답 생성
-                return properties.stream()
-                        .filter(p -> p.getId().equals(internalResponse.getPropertyId()))
-                        .findFirst()
-                        .map(p -> buildFinalResponse(p, internalResponse.getAiSummary()))
-                        .orElseThrow(() -> new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR));
-            } catch (Exception e) {
-                log.error("AI 추천 결과 처리 중 오류 발생: {}", e.getMessage());
-                throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
-            }
-        });
+        // 4. AI 호출 및 결과 파싱 (이미 @Async 스레드에서 실행 중이므로 중복 비동기 호출 제거)
+        try {
+            String aiResponse = geminiClient.generateContent(prompt);
+            // AI로부터 임시 응답(ID와 요약문)을 받음
+            AiInternalResponse internalResponse = objectMapper.readValue(aiResponse, AiInternalResponse.class);
+
+            // 5. 원본 데이터와 결합하여 최종 응답 생성
+            PropertyAiRecommendationResponse response = properties.stream()
+                    .filter(p -> p.getId().equals(internalResponse.getPropertyId()))
+                    .findFirst()
+                    .map(p -> buildFinalResponse(p, internalResponse.getAiSummary()))
+                    .orElseThrow(() -> new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR));
+
+            return CompletableFuture.completedFuture(response);
+        } catch (Exception e) {
+            log.error("AI 추천 결과 처리 중 오류 발생: {}", e.getMessage());
+            return CompletableFuture.failedFuture(new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR));
+        }
     }
 
     /**
