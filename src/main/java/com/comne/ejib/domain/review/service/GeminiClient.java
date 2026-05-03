@@ -38,10 +38,11 @@ public class GeminiClient {
      * @return AI가 생성한 응답 문자열 (JSON 형식)
      */
     public String generateContent(String prompt) {
-        String url = apiUrl + "?key=" + apiKey;
+        String url = apiUrl;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-goog-api-key", apiKey);
 
         // API 요청 바디 구성 (v1beta 기준 responseMimeType 사용)
         Map<String, Object> requestBody = Map.of(

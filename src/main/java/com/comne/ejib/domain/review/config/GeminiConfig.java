@@ -1,11 +1,9 @@
 package com.comne.ejib.domain.review.config;
 
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
-
-import java.time.Duration;
 
 /**
  * Gemini API 통신을 위한 RestTemplate 설정 클래스
@@ -14,10 +12,11 @@ import java.time.Duration;
 public class GeminiConfig {
 
     @Bean
-    public RestTemplate geminiRestTemplate(RestTemplateBuilder builder) {
-        return builder
-                .setConnectTimeout(Duration.ofSeconds(5))
-                .setReadTimeout(Duration.ofSeconds(15))
-                .build();
+    public RestTemplate geminiRestTemplate() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000); // 5초
+        factory.setReadTimeout(15000);    // 15초
+        
+        return new RestTemplate(factory);
     }
 }
