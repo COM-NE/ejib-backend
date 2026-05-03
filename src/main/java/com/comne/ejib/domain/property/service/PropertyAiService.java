@@ -45,8 +45,13 @@ public class PropertyAiService {
     public CompletableFuture<PropertyAiRecommendationResponse> getRecommendation(String userRequest, String region) {
         log.info("AI 매물 추천 시작: 지역={}, 요구사항={}", region, userRequest);
 
+        // 와일드카드 이스케이프 처리 (SQL Injection 방지)
+        String escapedRegion = region.replace("\\", "\\\\")
+                .replace("%", "\\%")
+                .replace("_", "\\_");
+
         // 1. 데이터 조회 (FETCH JOIN으로 N+1 방지)
-        List<Property> properties = propertyRepository.findAllWithReviewsByRegion(region);
+        List<Property> properties = propertyRepository.findAllWithReviewsByRegion(escapedRegion);
         
         if (properties.isEmpty()) {
             log.warn("해당 지역에 매물이 없습니다: {}", region);

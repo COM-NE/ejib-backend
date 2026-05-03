@@ -15,6 +15,6 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
      * @param region 조회할 지역 (예: "경기도 화성시")
      * @return 매물 리스트
      */
-    @Query("SELECT DISTINCT p FROM Property p LEFT JOIN FETCH p.reviews WHERE p.address LIKE :region%")
+    @Query("SELECT DISTINCT p FROM Property p LEFT JOIN FETCH p.reviews WHERE p.address LIKE CONCAT(:region, '%') ESCAPE '\\'")
     List<Property> findAllWithReviewsByRegion(@Param("region") String region);
 }
