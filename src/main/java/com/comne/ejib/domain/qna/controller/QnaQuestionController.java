@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/properties")
 @RequiredArgsConstructor
@@ -23,5 +25,13 @@ public class QnaQuestionController {
             @RequestBody @Valid QnaQuestionRequest request) {
         
         return ResponseEntity.ok(qnaQuestionService.createQuestion(propertyId, request));
+    }
+
+    /**
+     * 특정 매물의 모든 Q&A 목록을 조회합니다.
+     */
+    @GetMapping("/{propertyId}/qna")
+    public ResponseEntity<List<QnaQuestionResponse>> getQnaList(@PathVariable Long propertyId) {
+        return ResponseEntity.ok(qnaQuestionService.getQnaList(propertyId));
     }
 }
