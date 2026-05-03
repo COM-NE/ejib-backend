@@ -51,8 +51,8 @@ public class GeminiClient {
                                 Map.of("text", prompt)
                         ))
                 ),
-                "generation_config", Map.of(  // generationConfig -> generation_config (권장)
-                        "responseMimeType", "application/json" // responseMimeType -> response_mime_type (필수)
+                "generationConfig", Map.of(
+                        "responseMimeType", "application/json"
                 )
         );
 

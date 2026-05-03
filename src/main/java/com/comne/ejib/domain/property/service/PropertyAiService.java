@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,13 +51,15 @@ public class PropertyAiService {
                 .replace("%", "\\%")
                 .replace("_", "\\_");
 
-        // 1. 데이터 조회 (FETCH JOIN으로 N+1 방지)
-        List<Property> properties = propertyRepository.findAllWithReviewsByRegion(escapedRegion);
+        // 1. 데이터 조회 (2단계 전략: ID 먼저 10개 조회 후 페치 조인)
+        List<Long> propertyIds = propertyRepository.findIdsByRegion(escapedRegion, PageRequest.of(0, 10));
         
-        if (properties.isEmpty()) {
+        if (propertyIds.isEmpty()) {
             log.warn("해당 지역에 매물이 없습니다: {}", region);
             return CompletableFuture.completedFuture(null);
         }
+
+        List<Property> properties = propertyRepository.findAllWithReviewsByIdIn(propertyIds);
 
         // 2. AI 컨텍스트 구축 (텍스트 슬라이싱 포함)
         String context = buildAiContext(properties);
