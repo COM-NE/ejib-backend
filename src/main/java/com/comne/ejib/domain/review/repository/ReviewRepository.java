@@ -27,4 +27,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // ID 묶음으로 실제 데이터를 가져오는 쿼리 (이미지 조인 O)
     @EntityGraph(attributePaths = {"images"})
     List<Review> findByIdIn(Collection<Long> ids, Sort sort);
+
+    /**
+     * 특정 사용자가 특정 매물에 대해 특정 타입의 리뷰를 작성했는지 확인합니다.
+     */
+    boolean existsByUserIdAndPropertyIdAndReviewType(Long userId, Long propertyId, String reviewType);
 }
