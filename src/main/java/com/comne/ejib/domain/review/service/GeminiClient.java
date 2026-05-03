@@ -51,7 +51,7 @@ public class GeminiClient {
                         ))
                 ),
                 "generation_config", Map.of(  // generationConfig -> generation_config (권장)
-                        "response_mime_type", "application/json" // responseMimeType -> response_mime_type (필수)
+                        "responseMimeType", "application/json" // responseMimeType -> response_mime_type (필수)
                 )
         );
 
