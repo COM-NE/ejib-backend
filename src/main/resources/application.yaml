@@ -30,6 +30,9 @@ google:
     vision:
       credentials:
         location: ${VISION_KEY}
+  gemini:
+    api-key: ${GEMINI_API_KEY}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent
 
 cloudinary:
   cloud-name: ${CLOUDINARY_NAME}
