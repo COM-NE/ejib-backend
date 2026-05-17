@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -37,8 +38,11 @@ import java.util.List;
 public class SecurityConfig {
 
     private static final String[] SWAGGER_WHITELIST = {
+            "/swagger-ui.html",
             "/swagger-ui/**",
-            "/v3/api-docs/**"
+            "/v3/api-docs",
+            "/v3/api-docs/**",
+            "/webjars/**"
     };
 
     private static final String[] ACTUATOR_WHITELIST = {
@@ -69,9 +73,9 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(ACTUATOR_WHITELIST).permitAll()
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
-                        // TODO: JWT 인증 필터 도입 PR에서 /api/v1/auth/** 외 전체 API를 authenticated()로 전환한다.
                         .anyRequest().permitAll()
                 )
                 .build();
