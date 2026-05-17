@@ -44,6 +44,10 @@ public class JwtTokenProvider {
     }
 
     public String createRefreshToken(User user, String tokenId) {
+        if (tokenId == null || tokenId.isBlank()) {
+            throw new BusinessException(ErrorCode.INVALID_TOKEN);
+        }
+
         Instant now = Instant.now();
         Instant expiresAt = now.plusSeconds(jwtProperties.refreshTokenExpirationSeconds());
 
@@ -66,10 +70,16 @@ public class JwtTokenProvider {
             if (!JwtTokenType.REFRESH.value().equals(tokenType)) {
                 throw new BusinessException(ErrorCode.INVALID_TOKEN);
             }
+            String tokenId = jwt.getId();
+            Instant expiresAt = jwt.getExpiresAt();
+            if (tokenId == null || tokenId.isBlank() || expiresAt == null) {
+                throw new BusinessException(ErrorCode.INVALID_TOKEN);
+            }
+
             return new JwtRefreshTokenClaims(
                     Long.valueOf(jwt.getSubject()),
-                    jwt.getId(),
-                    jwt.getExpiresAt()
+                    tokenId,
+                    expiresAt
             );
         } catch (BusinessException e) {
             throw e;

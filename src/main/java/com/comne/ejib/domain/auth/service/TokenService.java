@@ -51,12 +51,12 @@ public class TokenService {
         );
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = BusinessException.class)
     public AuthTokenResponse rotateRefreshToken(String rawRefreshToken) {
         JwtRefreshTokenClaims claims = jwtTokenProvider.parseRefreshToken(rawRefreshToken);
         LocalDateTime now = LocalDateTime.now();
 
-        RefreshToken refreshToken = refreshTokenRepository.findByTokenId(claims.tokenId())
+        RefreshToken refreshToken = refreshTokenRepository.findByTokenIdForUpdate(claims.tokenId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_TOKEN));
 
         if (!refreshToken.getUser().getId().equals(claims.userId())) {
@@ -85,7 +85,7 @@ public class TokenService {
     @Transactional
     public void revokeRefreshToken(String rawRefreshToken) {
         JwtRefreshTokenClaims claims = jwtTokenProvider.parseRefreshToken(rawRefreshToken);
-        RefreshToken refreshToken = refreshTokenRepository.findByTokenId(claims.tokenId())
+        RefreshToken refreshToken = refreshTokenRepository.findByTokenIdForUpdate(claims.tokenId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_TOKEN));
 
         if (!refreshToken.getTokenHash().equals(tokenHashUtil.sha256(rawRefreshToken))) {
