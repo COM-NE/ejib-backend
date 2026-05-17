@@ -1,20 +1,29 @@
 package com.comne.ejib.global.security.support;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Optional;
 
 public final class SecurityUtil {
 
     private SecurityUtil() {
     }
 
-    public static Optional<Authentication> getAuthentication() {
+    public static boolean isAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return Optional.empty();
+
+        return authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
+    }
+
+    public static String getCurrentPrincipalName() {
+        if (!isAuthenticated()) {
+            return null;
         }
-        return Optional.of(authentication);
+
+        return SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
     }
 }
