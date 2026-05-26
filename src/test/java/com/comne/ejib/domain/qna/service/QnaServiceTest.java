@@ -96,8 +96,8 @@ public class QnaServiceTest {
     @DisplayName("질문 삭제 성공")
     void deleteQuestion_Success() {
         // given
-        QnaQuestionRequest request = new QnaQuestionRequest(questionAuthor.getId(), "질문 내용");
-        QnaQuestionResponse response = qnaQuestionService.createQuestion(testProperty.getId(), request);
+        QnaQuestionRequest request = new QnaQuestionRequest("질문 내용");
+        QnaQuestionResponse response = qnaQuestionService.createQuestion(testProperty.getId(), questionAuthor.getId(), request);
         Long questionId = response.getId();
 
         // when
@@ -111,8 +111,8 @@ public class QnaServiceTest {
     @DisplayName("작성자가 아닌 경우 질문 삭제 실패")
     void deleteQuestion_Fail_NotAuthor() {
         // given
-        QnaQuestionRequest request = new QnaQuestionRequest(questionAuthor.getId(), "질문 내용");
-        QnaQuestionResponse response = qnaQuestionService.createQuestion(testProperty.getId(), request);
+        QnaQuestionRequest request = new QnaQuestionRequest("질문 내용");
+        QnaQuestionResponse response = qnaQuestionService.createQuestion(testProperty.getId(), questionAuthor.getId(), request);
         Long questionId = response.getId();
 
         // when & then
@@ -137,11 +137,11 @@ public class QnaServiceTest {
     @DisplayName("답변 삭제 성공")
     void deleteAnswer_Success() {
         // given
-        QnaQuestionRequest qRequest = new QnaQuestionRequest(questionAuthor.getId(), "질문");
-        QnaQuestionResponse qResponse = qnaQuestionService.createQuestion(testProperty.getId(), qRequest);
+        QnaQuestionRequest qRequest = new QnaQuestionRequest("질문");
+        QnaQuestionResponse qResponse = qnaQuestionService.createQuestion(testProperty.getId(), questionAuthor.getId(), qRequest);
         
-        com.comne.ejib.domain.qna.dto.QnaAnswerRequest aRequest = new com.comne.ejib.domain.qna.dto.QnaAnswerRequest(answerAuthor.getId(), "답변");
-        com.comne.ejib.domain.qna.dto.QnaAnswerResponse aResponse = qnaAnswerService.createAnswer(qResponse.getId(), aRequest);
+        com.comne.ejib.domain.qna.dto.QnaAnswerRequest aRequest = new com.comne.ejib.domain.qna.dto.QnaAnswerRequest("답변");
+        com.comne.ejib.domain.qna.dto.QnaAnswerResponse aResponse = qnaAnswerService.createAnswer(qResponse.getId(), answerAuthor.getId(), aRequest);
         Long answerId = aResponse.getId();
 
         // when

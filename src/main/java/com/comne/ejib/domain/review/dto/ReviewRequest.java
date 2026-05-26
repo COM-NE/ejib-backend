@@ -3,9 +3,6 @@ package com.comne.ejib.domain.review.dto;
 import jakarta.validation.constraints.*;
 
 public record ReviewRequest(
-        @NotNull(message = "사용자 ID는 필수입니다.")
-        Long userId,
-
         @NotNull(message = "매물 ID는 필수입니다.")
         Long propertyId,
 

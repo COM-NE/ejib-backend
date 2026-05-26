@@ -3,6 +3,7 @@ package com.comne.ejib.domain.qna.controller;
 import com.comne.ejib.domain.qna.dto.QnaQuestionRequest;
 import com.comne.ejib.domain.qna.dto.QnaQuestionResponse;
 import com.comne.ejib.domain.qna.service.QnaQuestionService;
+import com.comne.ejib.global.security.support.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,8 @@ public class QnaQuestionController {
             @PathVariable Long propertyId,
             @RequestBody @Valid QnaQuestionRequest request) {
         
-        return ResponseEntity.ok(qnaQuestionService.createQuestion(propertyId, request));
+        Long userId = SecurityUtil.getCurrentUserId();
+        return ResponseEntity.ok(qnaQuestionService.createQuestion(propertyId, userId, request));
     }
 
     /**
@@ -40,9 +42,9 @@ public class QnaQuestionController {
      */
     @DeleteMapping("/questions/{questionId}")
     public ResponseEntity<Void> deleteQuestion(
-            @PathVariable Long questionId,
-            @RequestParam Long userId) {
+            @PathVariable Long questionId) {
         
+        Long userId = SecurityUtil.getCurrentUserId();
         qnaQuestionService.deleteQuestion(questionId, userId);
         return ResponseEntity.noContent().build();
     }

@@ -3,6 +3,7 @@ package com.comne.ejib.domain.review.controller;
 import com.comne.ejib.domain.review.dto.ReviewRequest;
 import com.comne.ejib.domain.review.dto.ReviewResponse;
 import com.comne.ejib.domain.review.service.ReviewService;
+import com.comne.ejib.global.security.support.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,8 @@ public class ReviewController {
             @RequestPart("request") @Valid ReviewRequest request,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
-        ReviewResponse response = reviewService.createReview(request, images);
+        Long userId = SecurityUtil.getCurrentUserId();
+        ReviewResponse response = reviewService.createReview(userId, request, images);
         return ResponseEntity.ok(response);
     }
 

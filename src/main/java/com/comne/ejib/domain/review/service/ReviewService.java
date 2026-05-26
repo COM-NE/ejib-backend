@@ -50,11 +50,11 @@ public class ReviewService {
      * 2. CompletableFuture를 활용하여 이미지를 병렬로 업로드 (N개 -> 1개 시간으로 단축)
      * 3. saveAll을 통한 Batch Insert 최적화
      */
-    public ReviewResponse createReview(ReviewRequest request, List<MultipartFile> images) throws IOException {
+    public ReviewResponse createReview(Long userId, ReviewRequest request, List<MultipartFile> images) throws IOException {
         StopWatch stopWatch = new StopWatch("Review Creation Performance");
 
         // 0. 외부 업로드 이전에 참조 무결성 사전 검증 (이미지 누수 방지)
-        if (!userRepository.existsById(request.userId())) {
+        if (!userRepository.existsById(userId)) {
             throw new IllegalArgumentException("존재하지 않는 유저입니다.");
         }
         if (!propertyRepository.existsById(request.propertyId())) {
@@ -69,7 +69,7 @@ public class ReviewService {
         // 2. DB 저장 (필요한 구간만 트랜잭션 적용)
         stopWatch.start("DB Transactional Save");
         Review savedReview = transactionTemplate.execute(status -> {
-            User user = userRepository.findById(request.userId())
+            User user = userRepository.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
             Property property = propertyRepository.findById(request.propertyId())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매물입니다."));
