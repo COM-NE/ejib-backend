@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/questions")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class QnaAnswerController {
     private final QnaAnswerService qnaAnswerService;
@@ -17,11 +17,23 @@ public class QnaAnswerController {
     /**
      * 질문에 대한 답변을 등록합니다.
      */
-    @PostMapping("/{questionId}/answers")
+    @PostMapping("/questions/{questionId}/answers")
     public ResponseEntity<QnaAnswerResponse> createAnswer(
             @PathVariable Long questionId,
             @RequestBody @Valid QnaAnswerRequest request) {
         
         return ResponseEntity.ok(qnaAnswerService.createAnswer(questionId, request));
+    }
+
+    /**
+     * 특정 답변을 삭제합니다.
+     */
+    @DeleteMapping("/answers/{answerId}")
+    public ResponseEntity<Void> deleteAnswer(
+            @PathVariable Long answerId,
+            @RequestParam Long userId) {
+        
+        qnaAnswerService.deleteAnswer(answerId, userId);
+        return ResponseEntity.noContent().build();
     }
 }

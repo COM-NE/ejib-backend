@@ -51,4 +51,19 @@ public class QnaAnswerService {
         QnaAnswer savedAnswer = qnaAnswerRepository.save(answer);
         return QnaAnswerResponse.from(savedAnswer);
     }
+
+    /**
+     * 답변을 삭제합니다. 작성자만 삭제할 수 있습니다.
+     */
+    @Transactional
+    public void deleteAnswer(Long answerId, Long userId) {
+        QnaAnswer answer = qnaAnswerRepository.findById(answerId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ANSWER_NOT_FOUND));
+
+        if (!answer.getUser().getId().equals(userId)) {
+            throw new BusinessException(ErrorCode.HANDLE_ACCESS_DENIED);
+        }
+
+        qnaAnswerRepository.delete(answer);
+    }
 }

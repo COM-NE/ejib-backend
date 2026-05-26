@@ -77,4 +77,20 @@ public class QnaQuestionService {
                 .map(q -> QnaQuestionResponse.from(q, answersMap.getOrDefault(q.getId(), Collections.emptyList())))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * 질문을 삭제합니다. 작성자만 삭제할 수 있으며, 관련 답변도 모두 삭제됩니다.
+     */
+    @Transactional
+    public void deleteQuestion(Long questionId, Long userId) {
+        QnaQuestion question = qnaQuestionRepository.findById(questionId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.QUESTION_NOT_FOUND));
+
+        if (!question.getUser().getId().equals(userId)) {
+            throw new BusinessException(ErrorCode.HANDLE_ACCESS_DENIED);
+        }
+
+        qnaAnswerRepository.deleteByQuestionId(questionId);
+        qnaQuestionRepository.delete(question);
+    }
 }

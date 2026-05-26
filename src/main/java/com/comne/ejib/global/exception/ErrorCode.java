@@ -31,7 +31,8 @@ public enum ErrorCode {
 
     // Q&A (Q)
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Q001", "존재하지 않는 질문입니다."),
-    NOT_VERIFIED_RESIDENT(HttpStatus.FORBIDDEN, "Q002", "실거주 인증된 사용자만 답변을 작성할 수 있습니다.");
+    NOT_VERIFIED_RESIDENT(HttpStatus.FORBIDDEN, "Q002", "실거주 인증된 사용자만 답변을 작성할 수 있습니다."),
+    ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "Q003", "존재하지 않는 답변입니다.");
 
     private final HttpStatus status;
     private final String code;

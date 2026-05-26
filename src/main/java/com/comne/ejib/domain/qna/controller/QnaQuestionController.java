@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/properties")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class QnaQuestionController {
     private final QnaQuestionService qnaQuestionService;
@@ -19,7 +19,7 @@ public class QnaQuestionController {
     /**
      * 특정 매물에 대한 질문을 등록합니다.
      */
-    @PostMapping("/{propertyId}/questions")
+    @PostMapping("/properties/{propertyId}/questions")
     public ResponseEntity<QnaQuestionResponse> createQuestion(
             @PathVariable Long propertyId,
             @RequestBody @Valid QnaQuestionRequest request) {
@@ -30,8 +30,20 @@ public class QnaQuestionController {
     /**
      * 특정 매물의 모든 Q&A 목록을 조회합니다.
      */
-    @GetMapping("/{propertyId}/qna")
+    @GetMapping("/properties/{propertyId}/qna")
     public ResponseEntity<List<QnaQuestionResponse>> getQnaList(@PathVariable Long propertyId) {
         return ResponseEntity.ok(qnaQuestionService.getQnaList(propertyId));
+    }
+
+    /**
+     * 특정 질문을 삭제합니다.
+     */
+    @DeleteMapping("/questions/{questionId}")
+    public ResponseEntity<Void> deleteQuestion(
+            @PathVariable Long questionId,
+            @RequestParam Long userId) {
+        
+        qnaQuestionService.deleteQuestion(questionId, userId);
+        return ResponseEntity.noContent().build();
     }
 }

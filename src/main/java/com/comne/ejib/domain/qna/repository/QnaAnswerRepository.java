@@ -15,4 +15,9 @@ public interface QnaAnswerRepository extends JpaRepository<QnaAnswer, Long> {
      */
     @Query("SELECT a FROM QnaAnswer a JOIN FETCH a.user WHERE a.question.id IN :questionIds")
     List<QnaAnswer> findAllByQuestionIdIn(@Param("questionIds") List<Long> questionIds);
+
+    /**
+     * 특정 질문에 달린 모든 답변을 삭제합니다.
+     */
+    void deleteByQuestionId(Long questionId);
 }
