@@ -4,11 +4,13 @@ import com.comne.ejib.domain.user.entity.User;
 import com.comne.ejib.global.exception.BusinessException;
 import com.comne.ejib.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -21,6 +23,7 @@ public class JwtTokenProvider {
     private static final String SCOPE_CLAIM = "scope";
     private static final String TOKEN_ID_CLAIM = "jti";
     private static final String USER_SCOPE = "USER";
+    private static final MacAlgorithm JWT_SIGNING_ALGORITHM = MacAlgorithm.HS256;
 
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
@@ -40,7 +43,9 @@ public class JwtTokenProvider {
                 .claim("nickname", user.getNickname())
                 .build();
 
-        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        JwsHeader header = JwsHeader.with(JWT_SIGNING_ALGORITHM).build();
+
+        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
     }
 
     public String createRefreshToken(User user, String tokenId) {
@@ -60,7 +65,9 @@ public class JwtTokenProvider {
                 .claim(TOKEN_TYPE_CLAIM, JwtTokenType.REFRESH.value())
                 .build();
 
-        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        JwsHeader header = JwsHeader.with(JWT_SIGNING_ALGORITHM).build();
+
+        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
     }
 
     public JwtRefreshTokenClaims parseRefreshToken(String refreshToken) {
