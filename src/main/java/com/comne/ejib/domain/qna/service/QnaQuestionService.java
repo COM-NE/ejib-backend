@@ -57,6 +57,10 @@ public class QnaQuestionService {
      */
     @Transactional(readOnly = true)
     public List<QnaQuestionResponse> getQnaList(Long propertyId) {
+        if (!propertyRepository.existsById(propertyId)) {
+            throw new BusinessException(ErrorCode.PROPERTY_NOT_FOUND);
+        }
+
         List<QnaQuestion> questions = qnaQuestionRepository.findByPropertyIdOrderByCreatedAtDesc(propertyId);
         
         if (questions.isEmpty()) {

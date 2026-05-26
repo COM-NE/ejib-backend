@@ -122,6 +122,18 @@ public class QnaServiceTest {
     }
 
     @Test
+    @DisplayName("존재하지 않는 매물 ID로 Q&A 목록 조회 시 실패")
+    void getQnaList_Fail_PropertyNotFound() {
+        // given
+        Long invalidPropertyId = 9999L;
+
+        // when & then
+        assertThatThrownBy(() -> qnaQuestionService.getQnaList(invalidPropertyId))
+                .isInstanceOf(BusinessException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PROPERTY_NOT_FOUND);
+    }
+
+    @Test
     @DisplayName("답변 삭제 성공")
     void deleteAnswer_Success() {
         // given
