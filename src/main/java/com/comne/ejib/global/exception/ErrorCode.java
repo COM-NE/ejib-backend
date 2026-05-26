@@ -13,6 +13,15 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "C005", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "C006", "만료된 토큰입니다."),
     TOKEN_REUSE_DETECTED(HttpStatus.UNAUTHORIZED, "C007", "이미 사용된 리프레시 토큰입니다."),
+    INVALID_LOGIN_TICKET(HttpStatus.UNAUTHORIZED, "C008", "유효하지 않은 로그인 티켓입니다."),
+
+    // Auth (A)
+    KAKAO_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "A001", "카카오 로그인에 실패했습니다."),
+    INVALID_KAKAO_OAUTH_STATE(HttpStatus.UNAUTHORIZED, "A002", "유효하지 않은 카카오 OAuth state입니다."),
+    INVALID_KAKAO_AUTHORIZATION_CODE(HttpStatus.UNAUTHORIZED, "A003", "유효하지 않은 카카오 인가 코드입니다."),
+    INVALID_KAKAO_TOKEN(HttpStatus.UNAUTHORIZED, "A004", "유효하지 않은 카카오 토큰입니다."),
+    KAKAO_API_ERROR(HttpStatus.BAD_GATEWAY, "A005", "카카오 API 호출 중 에러가 발생했습니다."),
+    DUPLICATED_NICKNAME(HttpStatus.CONFLICT, "A006", "사용할 수 없는 닉네임입니다."),
 
     // OCR (O)
     OCR_FILE_EMPTY(HttpStatus.BAD_REQUEST, "O001", "업로드된 파일이 비어있습니다."),

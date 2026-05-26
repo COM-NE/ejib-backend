@@ -4,6 +4,7 @@ import com.comne.ejib.global.security.handler.CustomAccessDeniedHandler;
 import com.comne.ejib.global.security.handler.CustomAuthenticationEntryPoint;
 import com.comne.ejib.global.security.jwt.JwtAuthenticationConverter;
 import com.comne.ejib.global.security.jwt.JwtProperties;
+import com.comne.ejib.global.security.kakao.KakaoOAuthProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +36,7 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableConfigurationProperties({JwtProperties.class, KakaoOAuthProperties.class})
 public class SecurityConfig {
 
     private static final String[] SWAGGER_WHITELIST = {
@@ -77,6 +78,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(ACTUATOR_WHITELIST).permitAll()
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
+                        .requestMatchers("/oauth/kakao/**", "/api/v1/auth/kakao/tokens").permitAll()
                         .anyRequest().permitAll()
                 )
                 .build();

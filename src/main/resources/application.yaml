@@ -39,3 +39,17 @@ cloudinary:
   cloud-name: ${CLOUDINARY_NAME}
   api-key: ${CLOUDINARY_KEY}
   api-secret: ${CLOUDINARY_SECRET}
+
+kakao:
+  oauth:
+    client-id: ${KAKAO_REST_API_KEY}
+    client-secret: ${KAKAO_CLIENT_SECRET:}
+    authorize-uri: https://kauth.kakao.com/oauth/authorize
+    token-uri: https://kauth.kakao.com/oauth/token
+    user-info-uri: https://kapi.kakao.com/v2/user/me
+    redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:8080/oauth/kakao/callback}
+    frontend-success-uri: ${KAKAO_FRONTEND_SUCCESS_URI:http://localhost:3000/oauth/kakao/success}
+    frontend-failure-uri: ${KAKAO_FRONTEND_FAILURE_URI:http://localhost:3000/login}
+    state-cookie-secure: ${KAKAO_STATE_COOKIE_SECURE:false}
+    state-expiration-seconds: ${KAKAO_STATE_EXPIRATION_SECONDS:300}
+    login-ticket-expiration-seconds: ${KAKAO_LOGIN_TICKET_EXPIRATION_SECONDS:180}
