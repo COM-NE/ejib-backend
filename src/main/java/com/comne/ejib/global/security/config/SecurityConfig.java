@@ -78,7 +78,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(ACTUATOR_WHITELIST).permitAll()
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
-                        .requestMatchers("/oauth/kakao/**", "/api/v1/auth/kakao/tokens").permitAll()
+                        .requestMatchers("/oauth/kakao/**", "/api/v1/auth/kakao/tokens", "/api/v1/dev/auth/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .build();
