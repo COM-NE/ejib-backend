@@ -3,14 +3,14 @@ package com.comne.ejib.domain.qna.entity;
 import com.comne.ejib.domain.user.entity.User;
 import com.comne.ejib.global.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
-@Table(name = "qna_answers")
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "qna_answers")
 public class QnaAnswer extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

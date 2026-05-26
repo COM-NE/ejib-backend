@@ -4,12 +4,12 @@ import com.comne.ejib.domain.property.entity.Property;
 import com.comne.ejib.domain.user.entity.User;
 import com.comne.ejib.global.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "qna_questions")
 public class QnaQuestion extends BaseTimeEntity {
