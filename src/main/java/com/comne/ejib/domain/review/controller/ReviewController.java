@@ -38,6 +38,15 @@ public class ReviewController {
     }
 
     /**
+     * 현재 로그인한 유저가 작성한 모든 리뷰를 조회합니다.
+     */
+    @GetMapping("/me")
+    public ResponseEntity<List<ReviewResponse>> getMyReviews() {
+        Long userId = SecurityUtil.getCurrentUserId();
+        return ResponseEntity.ok(reviewService.getReviewsByUserId(userId));
+    }
+
+    /**
      * 특정 유저(User)가 작성한 모든 리뷰를 조회합니다.
      */
     @GetMapping("/user/{userId}")
