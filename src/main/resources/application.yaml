@@ -50,6 +50,6 @@ kakao:
     redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:8080/oauth/kakao/callback}
     frontend-success-uri: ${KAKAO_FRONTEND_SUCCESS_URI:http://localhost:3000/oauth/kakao/success}
     frontend-failure-uri: ${KAKAO_FRONTEND_FAILURE_URI:http://localhost:3000/login}
-    state-cookie-secure: ${KAKAO_STATE_COOKIE_SECURE:false}
+    state-cookie-secure: ${KAKAO_STATE_COOKIE_SECURE:true}
     state-expiration-seconds: ${KAKAO_STATE_EXPIRATION_SECONDS:300}
     login-ticket-expiration-seconds: ${KAKAO_LOGIN_TICKET_EXPIRATION_SECONDS:180}

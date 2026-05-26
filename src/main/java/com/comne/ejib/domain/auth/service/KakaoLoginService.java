@@ -13,6 +13,7 @@ import com.comne.ejib.global.exception.ErrorCode;
 import com.comne.ejib.global.security.jwt.TokenHashUtil;
 import com.comne.ejib.global.security.kakao.KakaoOAuthProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,17 +46,12 @@ public class KakaoLoginService {
 
         String kakaoId = String.valueOf(kakaoUser.id());
         UserLookupResult lookupResult = findOrCreateUser(kakaoId, kakaoUser.nickname());
-        AuthTokenResponse tokens = tokenService.issueTokenPair(lookupResult.user());
 
         String ticket = createSecureTicket();
         KakaoLoginTicket loginTicket = KakaoLoginTicket.builder()
                 .ticketHash(tokenHashUtil.sha256(ticket))
                 .user(lookupResult.user())
                 .newUser(lookupResult.newUser())
-                .accessToken(tokens.accessToken())
-                .refreshToken(tokens.refreshToken())
-                .accessTokenExpiresIn(tokens.accessTokenExpiresIn())
-                .refreshTokenExpiresIn(tokens.refreshTokenExpiresIn())
                 .expiresAt(LocalDateTime.now().plusSeconds(kakaoOAuthProperties.resolvedLoginTicketExpirationSeconds()))
                 .build();
         kakaoLoginTicketRepository.save(loginTicket);
@@ -75,12 +71,7 @@ public class KakaoLoginService {
 
         loginTicket.use(now);
         User user = loginTicket.getUser();
-        AuthTokenResponse tokens = AuthTokenResponse.bearer(
-                loginTicket.getAccessToken(),
-                loginTicket.getRefreshToken(),
-                loginTicket.getAccessTokenExpiresIn(),
-                loginTicket.getRefreshTokenExpiresIn()
-        );
+        AuthTokenResponse tokens = tokenService.issueTokenPair(user);
         return new KakaoLoginResponse(user.getId(), user.getNickname(), loginTicket.isNewUser(), tokens);
     }
 
@@ -91,30 +82,46 @@ public class KakaoLoginService {
     }
 
     private User createUser(String kakaoId, String kakaoNickname) {
-        String nickname = createUniqueNickname(kakaoNickname, kakaoId);
-        User user = User.builder()
-                .kakaoId(kakaoId)
-                .nickname(nickname)
-                .profileImage(DEFAULT_PROFILE_IMAGE)
-                .jobType(DEFAULT_JOB_TYPE)
-                .point(DEFAULT_POINT)
-                .build();
-        return userRepository.save(user);
+        int maxRetries = 3;
+        for (int attempt = 0; attempt < maxRetries; attempt++) {
+            try {
+                String nickname = createUniqueNickname(kakaoNickname, kakaoId, attempt);
+                User user = User.builder()
+                        .kakaoId(kakaoId)
+                        .nickname(nickname)
+                        .profileImage(DEFAULT_PROFILE_IMAGE)
+                        .jobType(DEFAULT_JOB_TYPE)
+                        .point(DEFAULT_POINT)
+                        .build();
+                return userRepository.saveAndFlush(user);
+            } catch (DataIntegrityViolationException e) {
+                User alreadyCreatedUser = userRepository.findByKakaoId(kakaoId).orElse(null);
+                if (alreadyCreatedUser != null) {
+                    return alreadyCreatedUser;
+                }
+                if (attempt == maxRetries - 1) {
+                    throw new BusinessException(ErrorCode.DUPLICATED_NICKNAME);
+                }
+            }
+        }
+        throw new BusinessException(ErrorCode.DUPLICATED_NICKNAME);
     }
 
-    private String createUniqueNickname(String kakaoNickname, String kakaoId) {
+    private String createUniqueNickname(String kakaoNickname, String kakaoId, int retryOffset) {
         String baseNickname = normalizeNickname(kakaoNickname);
-        if (!userRepository.existsByNickname(baseNickname)) {
+        if (retryOffset == 0 && !userRepository.existsByNickname(baseNickname)) {
             return baseNickname;
         }
 
         String suffix = kakaoId.length() > 6 ? kakaoId.substring(kakaoId.length() - 6) : kakaoId;
         String candidate = trimToMaxLength(baseNickname, 13) + "_" + suffix;
-        if (!userRepository.existsByNickname(candidate)) {
+        if (retryOffset == 0 && !userRepository.existsByNickname(candidate)) {
             return candidate;
         }
 
-        for (int index = 1; index <= 99; index++) {
+        int startIndex = retryOffset * 100 + 1;
+        int endIndex = startIndex + 99;
+        for (int index = startIndex; index <= endIndex; index++) {
             String numberedCandidate = trimToMaxLength(baseNickname, 17) + "_" + index;
             if (!userRepository.existsByNickname(numberedCandidate)) {
                 return numberedCandidate;

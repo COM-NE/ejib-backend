@@ -6,7 +6,6 @@ import com.comne.ejib.domain.auth.service.KakaoLoginService;
 import com.comne.ejib.global.exception.BusinessException;
 import com.comne.ejib.global.exception.ErrorCode;
 import com.comne.ejib.global.security.kakao.KakaoOAuthProperties;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -62,11 +61,10 @@ public class KakaoOAuthController {
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String state,
             @RequestParam(required = false) String error,
-            @CookieValue(name = STATE_COOKIE_NAME, required = false) String savedState,
-            HttpServletRequest request
+            @CookieValue(name = STATE_COOKIE_NAME, required = false) String savedState
     ) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.SET_COOKIE, deleteStateCookie(request).toString());
+        headers.add(HttpHeaders.SET_COOKIE, deleteStateCookie().toString());
 
         try {
             validateCallback(code, state, savedState, error);
@@ -125,10 +123,10 @@ public class KakaoOAuthController {
                 .build();
     }
 
-    private ResponseCookie deleteStateCookie(HttpServletRequest request) {
+    private ResponseCookie deleteStateCookie() {
         return ResponseCookie.from(STATE_COOKIE_NAME, "")
                 .httpOnly(true)
-                .secure(request.isSecure() || kakaoOAuthProperties.stateCookieSecure())
+                .secure(kakaoOAuthProperties.stateCookieSecure())
                 .sameSite("Lax")
                 .path("/oauth/kakao")
                 .maxAge(0)

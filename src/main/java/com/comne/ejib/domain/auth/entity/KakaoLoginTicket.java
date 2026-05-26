@@ -38,18 +38,6 @@ public class KakaoLoginTicket extends BaseTimeEntity {
     @Column(nullable = false)
     private boolean newUser;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String accessToken;
-
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String refreshToken;
-
-    @Column(nullable = false)
-    private long accessTokenExpiresIn;
-
-    @Column(nullable = false)
-    private long refreshTokenExpiresIn;
-
     @Column(nullable = false)
     private LocalDateTime expiresAt;
 
