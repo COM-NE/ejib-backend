@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QnaQuestionRequest {
-    @NotNull(message = "사용자 ID는 필수입니다.")
-    private Long userId;
-
     @NotBlank(message = "질문 내용은 비어있을 수 없습니다.")
     private String content;
 }

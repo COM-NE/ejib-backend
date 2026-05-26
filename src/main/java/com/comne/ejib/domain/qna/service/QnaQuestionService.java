@@ -35,11 +35,11 @@ public class QnaQuestionService {
      * 특정 매물에 대한 질문을 등록합니다.
      */
     @Transactional
-    public QnaQuestionResponse createQuestion(Long propertyId, QnaQuestionRequest request) {
+    public QnaQuestionResponse createQuestion(Long propertyId, Long userId, QnaQuestionRequest request) {
         Property property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PROPERTY_NOT_FOUND));
 
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         QnaQuestion question = QnaQuestion.builder()

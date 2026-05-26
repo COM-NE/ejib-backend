@@ -3,6 +3,7 @@ package com.comne.ejib.domain.review.controller;
 import com.comne.ejib.domain.review.dto.ReviewRequest;
 import com.comne.ejib.domain.review.dto.ReviewResponse;
 import com.comne.ejib.domain.review.service.ReviewService;
+import com.comne.ejib.global.security.support.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,8 @@ public class ReviewController {
             @RequestPart("request") @Valid ReviewRequest request,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
-        ReviewResponse response = reviewService.createReview(request, images);
+        Long userId = SecurityUtil.getCurrentUserId();
+        ReviewResponse response = reviewService.createReview(userId, request, images);
         return ResponseEntity.ok(response);
     }
 
@@ -33,6 +35,15 @@ public class ReviewController {
     @GetMapping("/property/{propertyId}")
     public ResponseEntity<List<ReviewResponse>> getReviewsByPropertyId(@PathVariable Long propertyId) {
         return ResponseEntity.ok(reviewService.getReviewsByPropertyId(propertyId));
+    }
+
+    /**
+     * 현재 로그인한 유저가 작성한 모든 리뷰를 조회합니다.
+     */
+    @GetMapping("/me")
+    public ResponseEntity<List<ReviewResponse>> getMyReviews() {
+        Long userId = SecurityUtil.getCurrentUserId();
+        return ResponseEntity.ok(reviewService.getReviewsByUserId(userId));
     }
 
     /**

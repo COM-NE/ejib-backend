@@ -90,14 +90,13 @@ public class ReviewServiceIntegrationTest {
         );
 
         ReviewRequest request = new ReviewRequest(
-                testUser.getId(),
                 testProperty.getId(),
                 "실거주", 12, 5, 5, 5, 5, 5, 5,
                 "매우 만족스러운 집입니다.", 1000, 50
         );
 
         long startTime = System.currentTimeMillis();
-        ReviewResponse response = reviewService.createReview(request, images);
+        ReviewResponse response = reviewService.createReview(testUser.getId(), request, images);
         long endTime = System.currentTimeMillis();
 
         assertThat(response.userId()).isEqualTo(testUser.getId());

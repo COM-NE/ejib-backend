@@ -27,11 +27,11 @@ public class QnaAnswerService {
      * 질문에 대한 답변을 등록합니다. (실거주 인증 사용자 전용)
      */
     @Transactional
-    public QnaAnswerResponse createAnswer(Long questionId, QnaAnswerRequest request) {
+    public QnaAnswerResponse createAnswer(Long questionId, Long userId, QnaAnswerRequest request) {
         QnaQuestion question = qnaQuestionRepository.findById(questionId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.QUESTION_NOT_FOUND));
 
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         // 권한 검증: 해당 매물에 실거주 리뷰를 남긴 사용자인지 확인
