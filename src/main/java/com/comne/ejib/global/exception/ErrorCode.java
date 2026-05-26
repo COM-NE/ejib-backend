@@ -34,7 +34,18 @@ public enum ErrorCode {
     // Image (I)
     IMAGE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "I001", "이미지 업로드 중 에러가 발생했습니다."),
     IMAGE_FILE_EMPTY(HttpStatus.BAD_REQUEST, "I002", "업로드된 파일이 비어있습니다."),
-    IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "I003", "파일 크기는 5MB를 초과할 수 없습니다.");
+    IMAGE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "I003", "파일 크기는 5MB를 초과할 수 없습니다."),
+
+    // Property (P)
+    PROPERTY_NOT_FOUND(HttpStatus.NOT_FOUND, "P001", "존재하지 않는 매물입니다."),
+
+    // User (U)
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "존재하지 않는 사용자입니다."),
+
+    // Q&A (Q)
+    QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Q001", "존재하지 않는 질문입니다."),
+    NOT_VERIFIED_RESIDENT(HttpStatus.FORBIDDEN, "Q002", "실거주 인증된 사용자만 답변을 작성할 수 있습니다."),
+    ANSWER_NOT_FOUND(HttpStatus.NOT_FOUND, "Q003", "존재하지 않는 답변입니다.");
 
     private final HttpStatus status;
     private final String code;
