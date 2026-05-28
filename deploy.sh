@@ -13,20 +13,33 @@ HEALTH_RETRY_INTERVAL="${HEALTH_RETRY_INTERVAL:-5}"
 
 cd "$APP_DIR"
 
-echo "[1/5] Pull latest source"
-git pull origin main
+if [ $# -ge 1 ] && [ -n "$1" ]; then
+  export IMAGE_TAG="$1"
+  echo "Deploy image tag: $IMAGE_TAG"
+fi
+
+echo "[1/5] Validate required files"
+test -f "$COMPOSE_FILE"
+test -f "$ENV_FILE"
+test -f "./secrets/google-vision.json"
 
 echo "[2/5] Validate docker compose config"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" config > /dev/null
 
-echo "[3/5] Build and restart application"
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build "$APP_SERVICE"
+echo "[3/5] Pull latest image"
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" pull "$APP_SERVICE"
 
-echo "[4/5] Check app health"
+echo "[4/5] Restart application"
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --remove-orphans "$APP_SERVICE"
+
+echo "[5/5] Check app health"
 for i in $(seq 1 "$HEALTH_MAX_RETRIES"); do
   if curl -fsS "$HEALTH_URL" > /dev/null; then
     echo "Health check passed"
-    break
+    docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps "$APP_SERVICE"
+    docker image prune -f > /dev/null
+    echo "Deploy completed successfully"
+    exit 0
   fi
 
   echo "Health check failed. retry=$i/$HEALTH_MAX_RETRIES"
@@ -34,14 +47,9 @@ for i in $(seq 1 "$HEALTH_MAX_RETRIES"); do
   if [ "$i" -eq "$HEALTH_MAX_RETRIES" ]; then
     echo "Health check failed after $HEALTH_MAX_RETRIES attempts" >&2
     echo "Recent container logs:" >&2
-    docker logs --tail=100 "$APP_CONTAINER" >&2 || true
+    docker logs --tail=150 "$APP_CONTAINER" >&2 || true
     exit 1
   fi
 
   sleep "$HEALTH_RETRY_INTERVAL"
 done
-
-echo "[5/5] Cleanup unused Docker images"
-docker image prune -f
-
-echo "Deploy completed successfully"

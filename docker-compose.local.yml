@@ -1,7 +1,7 @@
 services:
   mysql:
     image: mysql:8.4
-    container_name: ejib-mysql-local
+    container_name: ejib-mysql
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-ejib_db}
@@ -9,14 +9,10 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ejib_local_password}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ejib_root_password}
       TZ: Asia/Seoul
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --default-time-zone=+09:00
     ports:
       - "3306:3306"
     volumes:
-      - ejib-mysql-local-data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
       interval: 10s
@@ -25,34 +21,28 @@ services:
       start_period: 30s
 
   app:
-    container_name: ejib-api-local
     build:
       context: .
       dockerfile: Dockerfile
+    image: ejib-backend:local
+    container_name: ejib-api-local
     restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
     env_file:
       - .env.local
     environment:
       SPRING_PROFILES_ACTIVE: dev
       EJIB_DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-ejib_db}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
-      EJIB_DB_USERNAME: ${MYSQL_USER:-ejib}
-      EJIB_DB_PASSWORD: ${MYSQL_PASSWORD:-ejib_local_password}
       VISION_KEY: file:/run/secrets/google_vision_key
     ports:
       - "8080:8080"
     secrets:
       - google_vision_key
-    depends_on:
-      mysql:
-        condition: service_healthy
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
 
 volumes:
-  ejib-mysql-local-data:
+  mysql_data:
 
 secrets:
   google_vision_key:
