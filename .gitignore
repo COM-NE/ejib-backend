@@ -25,7 +25,6 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-comne-491811-ab231f3ee954.json
 
 ### NetBeans ###
 /nbproject/private/
@@ -36,16 +35,26 @@ comne-491811-ab231f3ee954.json
 
 ### VS Code ###
 .vscode/
-.env
-GEMINI.md
 
-### Deploy / Docker secrets ###
+### Local env / secrets ###
+.env
 .env.local
 .env.prod
-secrets/
 *.pem
 *.key
 *.p12
 *.jks
 *.crt
 *.csr
+
+# 기존 Google Vision 서비스 계정 키 파일
+src/main/resources/comne-491811-ab231f3ee954.json
+**/comne-491811-ab231f3ee954.json
+
+# secrets 디렉토리
+secrets/*
+!secrets/.gitkeep
+
+GEMINI.md
+.DS_Store
+__MACOSX/

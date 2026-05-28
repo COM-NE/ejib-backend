@@ -15,8 +15,8 @@ __MACOSX
 
 .env
 .env.*
-!.env.local.example
-!.env.prod.example
+!.env.local
+!.env.prod
 
 secrets
 *.pem
@@ -27,7 +27,7 @@ secrets
 *.csr
 
 # Google service account keys must be mounted at runtime, not copied into images.
-**/comne-491811-ab231f3ee954.json
+secrets/google-vision.json
 **/*service-account*.json
 **/*google*.json
 
