@@ -38,3 +38,14 @@ comne-491811-ab231f3ee954.json
 .vscode/
 .env
 GEMINI.md
+
+### Deploy / Docker secrets ###
+.env.local
+.env.prod
+secrets/
+*.pem
+*.key
+*.p12
+*.jks
+*.crt
+*.csr
