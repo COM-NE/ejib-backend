@@ -19,7 +19,7 @@ public class VisionConfig {
     @Bean
     public ImageAnnotatorClient imageAnnotatorClient() throws IOException {
         try (InputStream is = credentialsLocation.getInputStream()) {
-            GoogleCredentials credentials = GoogleCredentials.fromStream(credentialsLocation.getInputStream());
+            GoogleCredentials credentials = GoogleCredentials.fromStream(is);
             ImageAnnotatorSettings settings = ImageAnnotatorSettings.newBuilder()
                     .setCredentialsProvider(() -> credentials)
                     .build();

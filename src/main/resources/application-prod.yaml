@@ -1,11 +1,27 @@
 spring:
+  web:
+    error:
+      include-message: never
+      include-binding-errors: never
+      include-stacktrace: never
+      include-exception: false
+
   datasource:
     url: ${EJIB_DB_URL}
     username: ${EJIB_DB_USERNAME}
     password: ${EJIB_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: EjibProdHikariPool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      validation-timeout: 5000
+      idle-timeout: 600000
+      max-lifetime: 1800000
 
   jpa:
+    open-in-view: false
     show-sql: false
     hibernate:
       ddl-auto: none
@@ -13,5 +29,19 @@ spring:
       hibernate:
         format_sql: false
 
-jwt:
-  secret: ${JWT_SECRET}
+logging:
+  level:
+    root: info
+    com.comne.ejib: info
+    org.hibernate.SQL: warn
+    org.springframework.security: warn
+
+springdoc:
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:false}
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:false}
+
+kakao:
+  oauth:
+    state-cookie-secure: true
