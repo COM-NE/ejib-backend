@@ -1,6 +1,6 @@
 services:
   app:
-    image: ${IMAGE_REPOSITORY}:${IMAGE_TAG:-latest}
+    image: ${IMAGE_REPOSITORY:?IMAGE_REPOSITORY is required}:${IMAGE_TAG:?IMAGE_TAG is required}
     container_name: ejib-api
     restart: unless-stopped
 
