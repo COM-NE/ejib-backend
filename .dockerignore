@@ -1,5 +1,4 @@
 .git
-.gitignore
 .github
 .gradle
 build
@@ -7,28 +6,20 @@ out
 .idea
 .vscode
 *.iml
-*.iws
-*.ipr
 .DS_Store
-**/.DS_Store
 __MACOSX
 
 .env
 .env.*
-!.env.local
-!.env.prod
-
-secrets
+!.env.example
 *.pem
 *.key
 *.p12
 *.jks
-*.crt
-*.csr
 
-# Google service account keys must be mounted at runtime, not copied into images.
-secrets/google-vision.json
-**/*service-account*.json
-**/*google*.json
+secrets/*
+!secrets/.gitkeep
+src/main/resources/*.json
 
-GEMINI.md
+README-deploy.md
+nginx

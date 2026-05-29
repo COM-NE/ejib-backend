@@ -6,6 +6,8 @@ import com.comne.ejib.domain.property.entity.Property;
 import com.comne.ejib.domain.property.repository.PropertyRepository;
 import com.comne.ejib.domain.review.dto.ReviewRequest;
 import com.comne.ejib.domain.review.dto.ReviewResponse;
+import com.comne.ejib.domain.review.repository.ReviewImageRepository;
+import com.comne.ejib.domain.review.repository.ReviewRepository;
 import com.comne.ejib.domain.user.entity.User;
 import com.comne.ejib.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
@@ -44,6 +45,12 @@ public class ReviewServiceIntegrationTest {
     @Autowired
     private PropertyRepository propertyRepository;
 
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private ReviewImageRepository reviewImageRepository;
+
     @MockitoBean
     private com.google.cloud.vision.v1.ImageAnnotatorClient imageAnnotatorClient;
 
@@ -55,6 +62,11 @@ public class ReviewServiceIntegrationTest {
 
     @BeforeEach
     void setUp() throws IOException {
+        reviewImageRepository.deleteAllInBatch();
+        reviewRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
+        propertyRepository.deleteAllInBatch();
+        
         // User 엔티티의 nullable = false 필드들을 채워서 저장
         testUser = userRepository.save(User.builder()
                 .nickname("테스터_" + System.currentTimeMillis())
@@ -73,7 +85,7 @@ public class ReviewServiceIntegrationTest {
         when(uploader.upload(ArgumentMatchers.any(byte[].class), anyMap())).thenAnswer(invocation -> {
             Thread.sleep(1000); // 1초 지연
             Map<String, Object> result = new HashMap<>();
-            result.put("url", "http://image.url/" + System.nanoTime());
+            result.put("secure_url", "https://image.url/" + System.nanoTime());
             return result;
         });
     }

@@ -3,6 +3,7 @@ package com.comne.ejib.domain.review.service;
 import com.comne.ejib.domain.property.entity.Property;
 import com.comne.ejib.domain.property.repository.PropertyRepository;
 import com.comne.ejib.domain.review.entity.Review;
+import com.comne.ejib.domain.review.repository.ReviewImageRepository;
 import com.comne.ejib.domain.review.repository.ReviewRepository;
 import com.comne.ejib.domain.user.entity.User;
 import com.comne.ejib.domain.user.repository.UserRepository;
@@ -43,8 +44,12 @@ public class ReviewLatestConcurrencyTest {
     @Autowired
     private PropertyRepository propertyRepository;
 
+    @Autowired
+    private ReviewImageRepository reviewImageRepository;
+
     @BeforeEach
     void setUp() {
+        reviewImageRepository.deleteAllInBatch();
         reviewRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
         propertyRepository.deleteAllInBatch();

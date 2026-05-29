@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1.7
 
 FROM eclipse-temurin:21-jdk-jammy AS builder
 WORKDIR /workspace
@@ -7,8 +7,11 @@ COPY gradlew settings.gradle build.gradle ./
 COPY gradle ./gradle
 RUN chmod +x ./gradlew
 
+# 의존성 레이어 캐시를 최대한 활용하기 위해 소스 복사 전 Gradle 의존성을 먼저 받습니다.
+RUN --mount=type=cache,target=/root/.gradle ./gradlew dependencies --no-daemon || true
+
 COPY src ./src
-RUN ./gradlew clean bootJar -x test --no-daemon
+RUN --mount=type=cache,target=/root/.gradle ./gradlew clean bootJar -x test --no-daemon
 
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
