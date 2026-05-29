@@ -14,15 +14,30 @@ spring:
         format_sql: false
 
 jwt:
-  secret: test-jwt-secret
+  issuer: ejib-test
+  secret: test-jwt-secret-must-be-at-least-32-bytes
+  access-token-expiration-seconds: 3600
+  refresh-token-expiration-seconds: 1209600
 
 cloudinary:
-  cloud-name: ${CLOUDINARY_NAME:test-cloud}
-  api-key: ${CLOUDINARY_KEY:test-key}
-  api-secret: ${CLOUDINARY_SECRET:test-secret}
+  cloud-name: test-cloud
+  api-key: test-key
+  api-secret: test-secret
 
 google:
   cloud:
     vision:
       credentials:
-        location: ${VISION_KEY:test-vision-key}
+        location: file:./secrets/google-vision.json
+  gemini:
+    api-key: test-gemini-key
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent
+
+kakao:
+  oauth:
+    client-id: test-kakao-client-id
+    client-secret:
+    redirect-uri: http://localhost:8080/oauth/kakao/callback
+    frontend-success-uri: http://localhost:3000/oauth/kakao/success
+    frontend-failure-uri: http://localhost:3000/login
+    state-cookie-secure: false
