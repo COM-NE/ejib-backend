@@ -147,7 +147,20 @@ public class ReviewService {
         try {
             Map<String, Object> uploadResult = cloudinary.uploader()
                     .upload(file.getBytes(), ObjectUtils.emptyMap());
-            return (String) uploadResult.get("secure_url");
+
+            Object secureUrl = uploadResult.get("secure_url");
+            Object fallbackUrl = uploadResult.get("url");
+            Object imageUrl = secureUrl != null ? secureUrl : fallbackUrl;
+
+            if (imageUrl == null || imageUrl.toString().isBlank()) {
+                log.error("Cloudinary upload response does not contain image url. file={}, response={}",
+                        file.getOriginalFilename(), uploadResult);
+                throw new BusinessException(ErrorCode.IMAGE_UPLOAD_ERROR);
+            }
+
+            return imageUrl.toString();
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Cloudinary upload error for file: {}", file.getOriginalFilename(), e);
             throw new BusinessException(ErrorCode.IMAGE_UPLOAD_ERROR);
