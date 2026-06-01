@@ -98,6 +98,7 @@ public class PropertyAiService {
 
         return PropertyAiRecommendationResponse.builder()
                 .propertyId(property.getId())
+                .propertyName(property.getPropertyName())
                 .address(property.getAddress())
                 .latitude(property.getLatitude())
                 .longitude(property.getLongitude())
@@ -124,6 +125,7 @@ public class PropertyAiService {
         StringBuilder sb = new StringBuilder();
         for (Property p : properties) {
             sb.append(String.format("### 매물 ID: %d\n", p.getId()));
+            sb.append(String.format("- 매물명: %s\n", p.getPropertyName()));
             sb.append(String.format("- 주소: %s\n", p.getAddress()));
             sb.append(String.format("- 금액: 보증금 %d / 월세 %d\n", p.getDeposit(), p.getMonthlyRent()));
             sb.append(String.format("- 설명: %s\n", p.getDescription()));
