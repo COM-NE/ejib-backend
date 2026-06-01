@@ -22,6 +22,7 @@ public class Property extends BaseTimeEntity {
 
     private String propertyType;
     private String transactionType;
+    private String propertyName;
     private Integer monthlyRent;
     private Integer deposit;
     private Integer floor;
