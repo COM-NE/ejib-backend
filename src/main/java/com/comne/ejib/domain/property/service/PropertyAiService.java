@@ -103,6 +103,7 @@ public class PropertyAiService {
                 .latitude(property.getLatitude())
                 .longitude(property.getLongitude())
                 .averageScore(Math.round(avgScore * 10) / 10.0) // 소수점 첫째자리까지
+                .reviewCount(property.getReviews().size())
                 .aiSummary(aiSummary)
                 .build();
     }

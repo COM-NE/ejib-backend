@@ -21,5 +21,6 @@ public class PropertyAiRecommendationResponse {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private Double averageScore;
+    private Integer reviewCount;
     private String aiSummary;
 }
