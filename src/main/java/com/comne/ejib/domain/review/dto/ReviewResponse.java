@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 public record ReviewResponse(
         Long id,
         Long userId,
+        String nickname,
         Long propertyId,
         String reviewType,
         Integer residenceDuration,
@@ -31,6 +32,7 @@ public record ReviewResponse(
         return ReviewResponse.builder()
                 .id(review.getId())
                 .userId(review.getUser().getId())
+                .nickname(review.getUser().getNickname())
                 .propertyId(review.getProperty().getId())
                 .reviewType(review.getReviewType())
                 .residenceDuration(review.getResidenceDuration())

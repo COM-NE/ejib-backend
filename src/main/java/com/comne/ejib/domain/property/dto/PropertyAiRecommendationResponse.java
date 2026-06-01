@@ -16,9 +16,11 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class PropertyAiRecommendationResponse {
     private Long propertyId;
+    private String propertyName;
     private String address;
     private BigDecimal latitude;
     private BigDecimal longitude;
     private Double averageScore;
+    private Integer reviewCount;
     private String aiSummary;
 }

@@ -24,8 +24,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("select r.id from Review r order by r.createdAt desc")
     List<Long> findLatestIds(Pageable pageable);
 
-    // ID 묶음으로 실제 데이터를 가져오는 쿼리 (이미지 조인 O)
-    @EntityGraph(attributePaths = {"images"})
+    // ID 묶음으로 실제 데이터를 가져오는 쿼리 (이미지, 유저 조인 O)
+    @EntityGraph(attributePaths = {"images", "user"})
     List<Review> findByIdIn(Collection<Long> ids, Sort sort);
 
     /**
