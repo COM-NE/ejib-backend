@@ -1,24 +1,10 @@
 package com.comne.ejib.domain.auth.dto;
 
 public record AuthTokenResponse(
-        String tokenType,
         String accessToken,
-        String refreshToken,
-        long accessTokenExpiresIn,
-        long refreshTokenExpiresIn
+        String refreshToken
 ) {
-    public static AuthTokenResponse bearer(
-            String accessToken,
-            String refreshToken,
-            long accessTokenExpiresIn,
-            long refreshTokenExpiresIn
-    ) {
-        return new AuthTokenResponse(
-                "Bearer",
-                accessToken,
-                refreshToken,
-                accessTokenExpiresIn,
-                refreshTokenExpiresIn
-        );
+    public static AuthTokenResponse of(String accessToken, String refreshToken) {
+        return new AuthTokenResponse(accessToken, refreshToken);
     }
 }

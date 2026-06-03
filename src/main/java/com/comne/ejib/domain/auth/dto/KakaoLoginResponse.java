@@ -1,10 +1,21 @@
 package com.comne.ejib.domain.auth.dto;
 
 public record KakaoLoginResponse(
-        Long userId,
-        String nickname,
+        String accessToken,
+        String refreshToken,
         boolean newUser,
-        boolean onboardingCompleted,
-        AuthTokenResponse tokens
+        boolean onboardingCompleted
 ) {
+    public static KakaoLoginResponse of(
+            AuthTokenResponse tokens,
+            boolean newUser,
+            boolean onboardingCompleted
+    ) {
+        return new KakaoLoginResponse(
+                tokens.accessToken(),
+                tokens.refreshToken(),
+                newUser,
+                onboardingCompleted
+        );
+    }
 }

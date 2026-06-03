@@ -38,6 +38,6 @@ public class KakaoDevAuthController {
             @Valid @RequestBody KakaoLoginTicketRequest request
     ) {
         KakaoLoginResponse response = kakaoLoginService.exchangeTicket(request.ticket());
-        return ResponseEntity.ok(response.tokens());
+        return ResponseEntity.ok(new AuthTokenResponse(response.accessToken(), response.refreshToken()));
     }
 }

@@ -43,12 +43,7 @@ public class TokenService {
                 .build();
         refreshTokenRepository.save(savedRefreshToken);
 
-        return AuthTokenResponse.bearer(
-                accessToken,
-                refreshToken,
-                jwtProperties.accessTokenExpirationSeconds(),
-                jwtProperties.refreshTokenExpirationSeconds()
-        );
+        return AuthTokenResponse.of(accessToken, refreshToken);
     }
 
     @Transactional(noRollbackFor = BusinessException.class)

@@ -56,14 +56,7 @@ public class UserOnboardingService {
                 .map(category -> UserPreference.of(user, category))
                 .toList());
 
-        return new UserOnboardingResponse(
-                user.getId(),
-                user.getNickname(),
-                user.getProfile(),
-                user.getStatus(),
-                requirements,
-                user.isOnboardingCompleted()
-        );
+        return UserOnboardingResponse.completed();
     }
 
     private String normalizeNickname(String nickname) {
