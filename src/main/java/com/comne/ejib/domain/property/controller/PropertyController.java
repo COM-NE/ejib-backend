@@ -2,7 +2,8 @@ package com.comne.ejib.domain.property.controller;
 
 import com.comne.ejib.domain.property.dto.PropertyDetailResponse;
 import com.comne.ejib.domain.property.dto.PropertyImageResponse;
-import com.comne.ejib.domain.property.service.PropertyImageService;
+import com.comne.ejib.domain.property.dto.PropertyReviewsResponse;
+import com.comne.ejib.domain.property.service.PropertyReviewService;
 import com.comne.ejib.domain.property.service.PropertyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,7 +23,6 @@ import java.util.List;
 public class PropertyController {
 
     private final PropertyService propertyService;
-    private final PropertyImageService propertyImageService;
 
     @Operation(summary = "매물 상세 조회", description = "매물 기본 정보와 리뷰 통계를 조회합니다.")
     @GetMapping("/{propertyId}")
@@ -33,6 +33,6 @@ public class PropertyController {
     @Operation(summary = "매물 리뷰 이미지 목록 조회", description = "매물에 연결된 모든 리뷰 이미지를 조회합니다.")
     @GetMapping("/{propertyId}/images")
     public ResponseEntity<List<PropertyImageResponse>> getPropertyImages(@PathVariable Long propertyId) {
-        return ResponseEntity.ok(propertyImageService.getPropertyImages(propertyId));
+        return ResponseEntity.ok(propertyService.getPropertyImages(propertyId));
     }
 }
