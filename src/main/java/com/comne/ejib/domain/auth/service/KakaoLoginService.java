@@ -7,6 +7,8 @@ import com.comne.ejib.domain.auth.dto.KakaoUserResponse;
 import com.comne.ejib.domain.auth.entity.KakaoLoginTicket;
 import com.comne.ejib.domain.auth.repository.KakaoLoginTicketRepository;
 import com.comne.ejib.domain.user.entity.User;
+import com.comne.ejib.domain.user.entity.UserProfile;
+import com.comne.ejib.domain.user.entity.UserStatus;
 import com.comne.ejib.domain.user.repository.UserRepository;
 import com.comne.ejib.global.exception.BusinessException;
 import com.comne.ejib.global.exception.ErrorCode;
@@ -26,8 +28,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class KakaoLoginService {
 
-    private static final int DEFAULT_PROFILE_IMAGE = 0;
-    private static final String DEFAULT_JOB_TYPE = "UNKNOWN";
+    private static final int DEFAULT_PROFILE_IMAGE = UserProfile.BLUE.code();
+    private static final String DEFAULT_JOB_TYPE = UserStatus.ETC.value();
     private static final int DEFAULT_POINT = 0;
     private static final int TICKET_BYTE_LENGTH = 32;
 
@@ -72,7 +74,7 @@ public class KakaoLoginService {
         loginTicket.use(now);
         User user = loginTicket.getUser();
         AuthTokenResponse tokens = tokenService.issueTokenPair(user);
-        return new KakaoLoginResponse(user.getId(), user.getNickname(), loginTicket.isNewUser(), tokens);
+        return new KakaoLoginResponse(user.getId(), user.getNickname(), loginTicket.isNewUser(), user.isOnboardingCompleted(), tokens);
     }
 
     private UserLookupResult findOrCreateUser(String kakaoId, String kakaoNickname) {
@@ -91,6 +93,7 @@ public class KakaoLoginService {
                         .nickname(nickname)
                         .profileImage(DEFAULT_PROFILE_IMAGE)
                         .jobType(DEFAULT_JOB_TYPE)
+                        .onboardingCompleted(false)
                         .point(DEFAULT_POINT)
                         .build();
                 return userRepository.saveAndFlush(user);

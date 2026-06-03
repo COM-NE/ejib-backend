@@ -41,6 +41,10 @@ public enum ErrorCode {
 
     // User (U)
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "존재하지 않는 사용자입니다."),
+    INVALID_ONBOARDING_PROFILE(HttpStatus.BAD_REQUEST, "U002", "profile은 blue, red, yellow 중 하나여야 합니다."),
+    INVALID_ONBOARDING_STATUS(HttpStatus.BAD_REQUEST, "U003", "status는 student, job-seeker, worker, etc 중 하나여야 합니다."),
+    INVALID_ONBOARDING_REQUIREMENT(HttpStatus.BAD_REQUEST, "U004", "requirement에 허용되지 않는 값이 포함되어 있습니다."),
+    INVALID_ONBOARDING_REQUIREMENT_COUNT(HttpStatus.BAD_REQUEST, "U005", "requirement는 서로 다른 값 3개를 선택해야 합니다."),
 
     // Q&A (Q)
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Q001", "존재하지 않는 질문입니다."),
