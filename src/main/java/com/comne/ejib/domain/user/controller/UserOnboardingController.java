@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "user-onboarding", description = "최초 로그인 후 회원가입/온보딩 API")
+@Tag(name = "사용자 온보딩")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users/me")

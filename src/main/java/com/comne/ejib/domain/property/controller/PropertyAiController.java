@@ -3,6 +3,7 @@ package com.comne.ejib.domain.property.controller;
 import com.comne.ejib.domain.property.dto.PropertyAiRecommendationRequest;
 import com.comne.ejib.domain.property.dto.PropertyAiRecommendationResponse;
 import com.comne.ejib.domain.property.service.PropertyAiService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * AI 기반 매물 추천 컨트롤러
  */
+@Tag(name = "AI 매물 추천")
 @RestController
 @RequestMapping("/api/v1/ai")
 @RequiredArgsConstructor
