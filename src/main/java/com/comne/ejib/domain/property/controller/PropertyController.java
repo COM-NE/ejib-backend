@@ -3,7 +3,6 @@ package com.comne.ejib.domain.property.controller;
 import com.comne.ejib.domain.property.dto.PropertyDetailResponse;
 import com.comne.ejib.domain.property.dto.PropertyImageResponse;
 import com.comne.ejib.domain.property.dto.PropertyReviewsResponse;
-import com.comne.ejib.domain.property.service.PropertyReviewService;
 import com.comne.ejib.domain.property.service.PropertyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,5 +33,11 @@ public class PropertyController {
     @GetMapping("/{propertyId}/images")
     public ResponseEntity<List<PropertyImageResponse>> getPropertyImages(@PathVariable Long propertyId) {
         return ResponseEntity.ok(propertyService.getPropertyImages(propertyId));
+    }
+
+    @Operation(summary = "매물 리뷰 목록 조회", description = "매물에 연결된 모든 리뷰의 점수 평균과 리뷰 목록을 조회합니다.")
+    @GetMapping("/{propertyId}/reviews")
+    public ResponseEntity<PropertyReviewsResponse> getPropertyReviews(@PathVariable Long propertyId) {
+        return ResponseEntity.ok(propertyService.getPropertyReviews(propertyId));
     }
 }
