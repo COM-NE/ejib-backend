@@ -45,7 +45,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("""
             SELECT
                 u.nickname AS nickname,
-                r.monthlyRent AS monthlyRent,
+                r.residenceDuration AS residenceDuration,
                 r.totalScore AS totalScore,
                 r.houseScore AS houseScore,
                 r.facilityScore AS facilityScore,
