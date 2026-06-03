@@ -6,6 +6,7 @@ import com.comne.ejib.domain.auth.service.KakaoLoginService;
 import com.comne.ejib.global.exception.BusinessException;
 import com.comne.ejib.global.exception.ErrorCode;
 import com.comne.ejib.global.security.kakao.KakaoOAuthProperties;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +27,7 @@ import java.net.URI;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+@Tag(name = "카카오 인증")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping

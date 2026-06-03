@@ -74,7 +74,7 @@ public class KakaoLoginService {
         loginTicket.use(now);
         User user = loginTicket.getUser();
         AuthTokenResponse tokens = tokenService.issueTokenPair(user);
-        return new KakaoLoginResponse(user.getId(), user.getNickname(), loginTicket.isNewUser(), user.isOnboardingCompleted(), tokens);
+        return KakaoLoginResponse.of(tokens, loginTicket.isNewUser(), user.isOnboardingCompleted());
     }
 
     private UserLookupResult findOrCreateUser(String kakaoId, String kakaoNickname) {

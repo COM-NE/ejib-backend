@@ -4,6 +4,7 @@ import com.comne.ejib.domain.auth.dto.AuthTokenResponse;
 import com.comne.ejib.domain.auth.dto.LogoutRequest;
 import com.comne.ejib.domain.auth.dto.RefreshTokenRequest;
 import com.comne.ejib.domain.auth.service.TokenService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "JWT 토큰")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
