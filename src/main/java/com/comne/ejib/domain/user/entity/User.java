@@ -19,7 +19,7 @@ public class User extends BaseTimeEntity {
     private String nickname;
 
     @Column(nullable = false)
-    private Integer profileImage; // TINYINT
+    private Integer profileImage; // 0: blue, 1: red, 2: yellow
 
     @Column(nullable = false, length = 20)
     private String jobType;
@@ -29,4 +29,28 @@ public class User extends BaseTimeEntity {
 
     @Column(nullable = false, length = 255, unique = true)
     private String kakaoId;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private Boolean onboardingCompleted = false;
+
+    public void completeOnboarding(String nickname, UserProfile profile, UserStatus status) {
+        this.nickname = nickname;
+        this.profileImage = profile.code();
+        this.jobType = status.value();
+        this.onboardingCompleted = true;
+    }
+
+    public boolean isOnboardingCompleted() {
+        return Boolean.TRUE.equals(onboardingCompleted);
+    }
+
+    public String getProfile() {
+        UserProfile profile = UserProfile.fromCode(profileImage);
+        return profile == null ? null : profile.value();
+    }
+
+    public String getStatus() {
+        return jobType;
+    }
 }
