@@ -15,6 +15,9 @@ public class User extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 10)
+    private String name;
+
     @Column(nullable = false, length = 20, unique = true)
     private String nickname;
 
@@ -34,7 +37,8 @@ public class User extends BaseTimeEntity {
     @Builder.Default
     private Boolean onboardingCompleted = false;
 
-    public void completeOnboarding(String nickname, UserProfile profile, UserStatus status) {
+    public void completeOnboarding(String name, String nickname, UserProfile profile, UserStatus status) {
+        this.name = name;
         this.nickname = nickname;
         this.profileImage = profile.code();
         this.jobType = status.value();

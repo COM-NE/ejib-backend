@@ -24,7 +24,7 @@ public class UserOnboardingController {
 
     @Operation(
             summary = "내 온보딩 정보 저장",
-            description = "카카오 최초 로그인 사용자의 nickname, profile, status, requirement 3개를 저장합니다."
+            description = "카카오 최초 로그인 사용자의 name, nickname, profile, status, requirement 3개를 저장합니다."
     )
     @PatchMapping("/onboarding")
     public ResponseEntity<UserOnboardingResponse> completeOnboarding(

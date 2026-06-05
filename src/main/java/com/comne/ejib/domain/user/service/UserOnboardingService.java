@@ -40,6 +40,7 @@ public class UserOnboardingService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
+        String name = normalizeName(request.name());
         String nickname = normalizeNickname(request.nickname());
         if (userRepository.existsByNicknameAndIdNot(nickname, user.getId())) {
             throw new BusinessException(ErrorCode.DUPLICATED_NICKNAME);
@@ -50,13 +51,21 @@ public class UserOnboardingService {
         List<String> requirements = normalizeRequirements(request.requirement());
         List<PreferenceCategory> categories = findOrCreateCategories(requirements);
 
-        user.completeOnboarding(nickname, profile, status);
+        user.completeOnboarding(name, nickname, profile, status);
         userPreferenceRepository.deleteByUserId(user.getId());
         userPreferenceRepository.saveAll(categories.stream()
                 .map(category -> UserPreference.of(user, category))
                 .toList());
 
         return UserOnboardingResponse.completed();
+    }
+
+    private String normalizeName(String name) {
+        String normalized = name == null ? "" : name.trim();
+        if (normalized.isBlank() || normalized.length() > 10) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+        return normalized;
     }
 
     private String normalizeNickname(String nickname) {

@@ -8,6 +8,10 @@ import java.util.List;
 
 public record UserOnboardingRequest(
         @NotBlank
+        @Size(max = 10)
+        String name,
+
+        @NotBlank
         @Size(max = 20)
         String nickname,
 
