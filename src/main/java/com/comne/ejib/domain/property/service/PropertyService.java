@@ -68,7 +68,7 @@ public class PropertyService {
 
     @Transactional
     public PropertyScrapResponse togglePropertyScrap(Long userId, Long propertyId) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdForUpdate(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Property property = propertyRepository.findById(propertyId)
