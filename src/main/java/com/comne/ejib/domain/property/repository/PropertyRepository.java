@@ -61,6 +61,24 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
             @Param("name") String name
     );
 
+    @Query("""
+            SELECT
+                p.id AS id,
+                p.propertyName AS propertyName,
+                p.address AS propertyAddress,
+                COALESCE(AVG(r.totalScore), 0) AS averageTotalScore,
+                COUNT(r) AS reviewCount,
+                p.transactionType AS transactionType,
+                true AS scrapped
+            FROM Scrap s
+            JOIN s.property p
+            LEFT JOIN p.reviews r
+            WHERE s.user.id = :userId
+            GROUP BY p.id, p.propertyName, p.address, p.transactionType, s.id
+            ORDER BY s.id DESC
+            """)
+    List<PropertySearchProjection> findScrappedPropertiesByUserId(@Param("userId") Long userId);
+
     /**
      * 특정 지역의 매물 ID들을 페이징하여 조회합니다.
      */

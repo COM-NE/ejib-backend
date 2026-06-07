@@ -47,6 +47,17 @@ public class PropertyService {
     }
 
     @Transactional(readOnly = true)
+    public List<PropertySearchResponse> getScrappedProperties(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return propertyRepository.findScrappedPropertiesByUserId(userId).stream()
+                .map(PropertySearchResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public PropertyDetailResponse getPropertyDetail(Long propertyId) {
         return propertyRepository.findDetailById(propertyId)
                 .map(PropertyDetailResponse::from)
