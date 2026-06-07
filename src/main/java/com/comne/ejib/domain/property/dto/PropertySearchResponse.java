@@ -1,6 +1,5 @@
 package com.comne.ejib.domain.property.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
