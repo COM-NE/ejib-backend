@@ -1,5 +1,6 @@
 package com.comne.ejib.domain.property.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
@@ -12,6 +13,7 @@ public class PropertySearchResponse {
     private final Double averageTotalScore;
     private final Long reviewCount;
     private final String transactionType;
+    private final Boolean scrapped;
 
     private PropertySearchResponse(
             Long id,
@@ -19,7 +21,8 @@ public class PropertySearchResponse {
             String propertyAddress,
             Double averageTotalScore,
             Long reviewCount,
-            String transactionType
+            String transactionType,
+            Boolean scrapped
     ) {
         this.id = id;
         this.propertyName = propertyName;
@@ -27,6 +30,7 @@ public class PropertySearchResponse {
         this.averageTotalScore = roundToFirstDecimal(averageTotalScore);
         this.reviewCount = reviewCount == null ? 0L : reviewCount;
         this.transactionType = transactionType;
+        this.scrapped = Boolean.TRUE.equals(scrapped);
     }
 
     public static PropertySearchResponse from(PropertySearchProjection projection) {
@@ -36,7 +40,8 @@ public class PropertySearchResponse {
                 projection.getPropertyAddress(),
                 projection.getAverageTotalScore(),
                 projection.getReviewCount(),
-                projection.getTransactionType()
+                projection.getTransactionType(),
+                projection.getScrapped()
         );
     }
 

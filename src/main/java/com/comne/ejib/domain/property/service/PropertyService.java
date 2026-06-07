@@ -26,14 +26,14 @@ public class PropertyService {
 
 
     @Transactional(readOnly = true)
-    public List<PropertySearchResponse> searchPropertiesByName(String name) {
+    public List<PropertySearchResponse> searchPropertiesByName(Long userId, String name) {
         String keyword = name == null ? "" : name.trim();
 
         if (keyword.isBlank()) {
             return List.of();
         }
 
-        return propertyRepository.searchByNameContaining(keyword).stream()
+        return propertyRepository.searchByNameContaining(userId, keyword).stream()
                 .map(PropertySearchResponse::from)
                 .toList();
     }

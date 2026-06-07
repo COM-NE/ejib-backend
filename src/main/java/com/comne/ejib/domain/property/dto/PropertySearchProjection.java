@@ -13,4 +13,6 @@ public interface PropertySearchProjection {
     Long getReviewCount();
 
     String getTransactionType();
+
+    Boolean getScrapped();
 }

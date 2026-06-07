@@ -43,13 +43,23 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
                 p.address AS propertyAddress,
                 COALESCE(AVG(r.totalScore), 0) AS averageTotalScore,
                 COUNT(r) AS reviewCount,
-                p.transactionType AS transactionType
-            FROM Property p LEFT JOIN p.reviews r
+                p.transactionType AS transactionType,
+                CASE WHEN (
+                    SELECT COUNT(s)
+                    FROM Scrap s
+                    WHERE s.property = p
+                      AND s.user.id = :userId
+                ) > 0 THEN true ELSE false END AS scrapped
+            FROM Property p
+            LEFT JOIN p.reviews r
             WHERE LOWER(p.propertyName) LIKE LOWER(CONCAT('%', :name, '%'))
             GROUP BY p.id, p.propertyName, p.address, p.transactionType
             ORDER BY p.id DESC
             """)
-    List<PropertySearchProjection> searchByNameContaining(@Param("name") String name);
+    List<PropertySearchProjection> searchByNameContaining(
+            @Param("userId") Long userId,
+            @Param("name") String name
+    );
 
     /**
      * 특정 지역의 매물 ID들을 페이징하여 조회합니다.

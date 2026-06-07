@@ -5,6 +5,7 @@ import com.comne.ejib.domain.property.dto.PropertyImageResponse;
 import com.comne.ejib.domain.property.dto.PropertyReviewsResponse;
 import com.comne.ejib.domain.property.dto.PropertySearchResponse;
 import com.comne.ejib.domain.property.service.PropertyService;
+import com.comne.ejib.global.security.support.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,8 @@ public class PropertyController {
     @Operation(summary = "매물 이름 검색", description = "매물명에 검색어가 포함된 매물 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<List<PropertySearchResponse>> searchProperties(@RequestParam String name) {
-        return ResponseEntity.ok(propertyService.searchPropertiesByName(name));
+        Long userId = SecurityUtil.getCurrentUserId();
+        return ResponseEntity.ok(propertyService.searchPropertiesByName(userId, name));
     }
 
     @Operation(summary = "매물 상세 조회", description = "매물 기본 정보와 리뷰 통계를 조회합니다.")
