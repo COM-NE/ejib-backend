@@ -4,6 +4,7 @@ import com.comne.ejib.domain.property.dto.PropertyDetailResponse;
 import com.comne.ejib.domain.property.dto.PropertyImageResponse;
 import com.comne.ejib.domain.property.dto.PropertyReviewItemResponse;
 import com.comne.ejib.domain.property.dto.PropertyReviewsResponse;
+import com.comne.ejib.domain.property.dto.PropertySearchResponse;
 import com.comne.ejib.domain.property.repository.PropertyRepository;
 import com.comne.ejib.domain.review.repository.ReviewImageRepository;
 import com.comne.ejib.domain.review.repository.ReviewRepository;
@@ -22,6 +23,20 @@ public class PropertyService {
     private final PropertyRepository propertyRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final ReviewRepository reviewRepository;
+
+
+    @Transactional(readOnly = true)
+    public List<PropertySearchResponse> searchPropertiesByName(Long userId, String name) {
+        String keyword = name == null ? "" : name.trim();
+
+        if (keyword.isBlank()) {
+            return List.of();
+        }
+
+        return propertyRepository.searchByNameContaining(userId, keyword).stream()
+                .map(PropertySearchResponse::from)
+                .toList();
+    }
 
     @Transactional(readOnly = true)
     public PropertyDetailResponse getPropertyDetail(Long propertyId) {
