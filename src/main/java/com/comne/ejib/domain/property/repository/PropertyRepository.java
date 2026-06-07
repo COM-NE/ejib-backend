@@ -1,6 +1,7 @@
 package com.comne.ejib.domain.property.repository;
 
 import com.comne.ejib.domain.property.dto.PropertyDetailProjection;
+import com.comne.ejib.domain.property.dto.PropertySearchProjection;
 import com.comne.ejib.domain.property.entity.Property;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,6 +35,21 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
             FROM Property p WHERE p.id = :propertyId
             """)
     Optional<PropertyDetailProjection> findDetailById(@Param("propertyId") Long propertyId);
+
+    @Query("""
+            SELECT
+                p.id AS id,
+                p.propertyName AS propertyName,
+                p.address AS propertyAddress,
+                COALESCE(AVG(r.totalScore), 0) AS averageTotalScore,
+                COUNT(r) AS reviewCount,
+                p.transactionType AS transactionType
+            FROM Property p LEFT JOIN p.reviews r
+            WHERE LOWER(p.propertyName) LIKE LOWER(CONCAT('%', :name, '%'))
+            GROUP BY p.id, p.propertyName, p.address, p.transactionType
+            ORDER BY p.id DESC
+            """)
+    List<PropertySearchProjection> searchByNameContaining(@Param("name") String name);
 
     /**
      * 특정 지역의 매물 ID들을 페이징하여 조회합니다.

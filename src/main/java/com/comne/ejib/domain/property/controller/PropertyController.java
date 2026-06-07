@@ -3,6 +3,7 @@ package com.comne.ejib.domain.property.controller;
 import com.comne.ejib.domain.property.dto.PropertyDetailResponse;
 import com.comne.ejib.domain.property.dto.PropertyImageResponse;
 import com.comne.ejib.domain.property.dto.PropertyReviewsResponse;
+import com.comne.ejib.domain.property.dto.PropertySearchResponse;
 import com.comne.ejib.domain.property.service.PropertyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -22,6 +24,13 @@ import java.util.List;
 public class PropertyController {
 
     private final PropertyService propertyService;
+
+
+    @Operation(summary = "매물 이름 검색", description = "매물명에 검색어가 포함된 매물 목록을 조회합니다.")
+    @GetMapping
+    public ResponseEntity<List<PropertySearchResponse>> searchProperties(@RequestParam String name) {
+        return ResponseEntity.ok(propertyService.searchPropertiesByName(name));
+    }
 
     @Operation(summary = "매물 상세 조회", description = "매물 기본 정보와 리뷰 통계를 조회합니다.")
     @GetMapping("/{propertyId}")
