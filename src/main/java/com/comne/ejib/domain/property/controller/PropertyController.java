@@ -3,6 +3,7 @@ package com.comne.ejib.domain.property.controller;
 import com.comne.ejib.domain.property.dto.PropertyDetailResponse;
 import com.comne.ejib.domain.property.dto.PropertyImageResponse;
 import com.comne.ejib.domain.property.dto.PropertyReviewsResponse;
+import com.comne.ejib.domain.property.dto.PropertyScrapResponse;
 import com.comne.ejib.domain.property.dto.PropertySearchResponse;
 import com.comne.ejib.domain.property.service.PropertyService;
 import com.comne.ejib.global.security.support.SecurityUtil;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,6 +40,13 @@ public class PropertyController {
     @GetMapping("/{propertyId}")
     public ResponseEntity<PropertyDetailResponse> getPropertyDetail(@PathVariable Long propertyId) {
         return ResponseEntity.ok(propertyService.getPropertyDetail(propertyId));
+    }
+
+    @Operation(summary = "매물 스크랩 토글", description = "로그인한 사용자의 매물 스크랩 여부를 변경합니다.")
+    @PatchMapping("/{propertyId}/scrap")
+    public ResponseEntity<PropertyScrapResponse> togglePropertyScrap(@PathVariable Long propertyId) {
+        Long userId = SecurityUtil.getCurrentUserId();
+        return ResponseEntity.ok(propertyService.togglePropertyScrap(userId, propertyId));
     }
 
     @Operation(summary = "매물 리뷰 이미지 목록 조회", description = "매물에 연결된 모든 리뷰 이미지를 조회합니다.")
